@@ -22,6 +22,7 @@ program
   .option('-c, --config <path>', 'Path to configuration file')
   .option('-o, --output <path>', 'Output directory for generated nodes', './nodes')
   .option('-p, --prefix <prefix>', 'Node name prefix', 'Dvelop')
+  .option('--platform-node <path>', 'Path to existing DvelopPlatform.node.ts file')
   .option('--no-tests', 'Skip test generation')
   .option('--include-volatile', 'Include volatile actions')
   .action(async (options) => {
@@ -42,6 +43,13 @@ program
       } else {
         // Interactive configuration
         config = await promptForConfig(options);
+      }
+
+      if (options.platformNode) {
+        config.platformNodePath = path.resolve(options.platformNode);
+      } else if (!config.platformNodePath) {
+        // Fallback Standardpfad
+        config.platformNodePath = path.resolve('@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopPlatform.node.ts');
       }
 
       // Test connection first
@@ -207,7 +215,8 @@ async function promptForConfig(options: any): Promise<GeneratorConfig> {
     outputPath: path.resolve(options.output || './nodes'),
     nodePrefix: answers.nodePrefix,
     generateTests: answers.generateTests,
-    includeVolatileActions: answers.includeVolatileActions
+    includeVolatileActions: answers.includeVolatileActions,
+    platformNodePath: options.platformNode ? path.resolve(options.platformNode) : undefined,
   };
 }
 

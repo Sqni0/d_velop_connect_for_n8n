@@ -69,8 +69,15 @@ export class DvelopActionsApiClient {
    */
   async getEventDefinitions(): Promise<DvelopEventDefinition[]> {
     try {
-      const response = await this.client.get<DvelopEventDefinition[]>('/api/v1/event-definitions');
-      return response.data || [];
+      const response = await this.client.get<{ eventDefinitions?: DvelopEventDefinition[]; data?: any }>(
+        '/api/v1/event-definitions'
+      );
+      // API liefert laut Anpassung ein Objekt mit eventDefinitions-Array
+      const defs = (response.data as any)?.eventDefinitions;
+      if (Array.isArray(defs)) return defs;
+      // Fallback: falls legacy direktes Array zurückkommt
+      if (Array.isArray(response.data)) return response.data as unknown as DvelopEventDefinition[];
+      return [];
     } catch (error) {
       console.error('Failed to fetch event definitions:', error);
       throw new Error(`Failed to fetch event definitions: ${error}`);

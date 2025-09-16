@@ -161,9 +161,10 @@ export interface N8nOption {
 }
 
 export interface GeneratorConfig {
-  dvelopConfig: DvelopAuthConfig;
-  outputPath: string;
-  nodePrefix: string;
-  generateTests: boolean;
-  includeVolatileActions: boolean;
+    dvelopConfig: DvelopAuthConfig;
+    outputPath: string;
+    nodePrefix: string;
+    generateTests: boolean;
+    includeVolatileActions: boolean;
+    platformNodePath?: string; // Pfad zur bestehenden DvelopPlatform Node-Datei
 }

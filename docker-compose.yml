@@ -19,7 +19,8 @@ services:
       - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./n8n-nodes-dvelop:/home/node/.n8n/custom:ro
+      # Mount des Community Node Pakets (inkl. package.json + dist)
+      - ./@dvelop/n8n-nodes-example:/home/node/.n8n/custom
     depends_on:
       - postgres
 
