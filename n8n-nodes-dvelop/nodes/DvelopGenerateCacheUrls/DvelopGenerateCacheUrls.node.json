@@ -1,0 +1,71 @@
+{
+	"displayName": "Generate d.velop Cache URLs",
+	"name": "dvelopGenerateCacheUrls",
+	"icon": "file:dvelop.svg",
+	"group": ["transform"],
+	"version": 1,
+	"description": "Generates a URL that can be used for a temporary file upload",
+	"defaults": {
+		"name": "Generate Cache URLs"
+	},
+	"inputs": ["main"],
+	"outputs": ["main"],
+	"credentials": [
+		{
+			"name": "dvelopApi",
+			"required": true
+		}
+	],
+	"properties": [
+		{
+			"displayName": "File (Base64)",
+			"name": "file_binary",
+			"type": "string",
+			"required": false,
+			"default": "",
+			"description": "Content of the file to be cached (Base64 encoded)",
+			"typeOptions": {
+				"rows": 2
+			}
+		},
+		{
+			"displayName": "Time to Live (TTL)",
+			"name": "TTL",
+			"type": "options",
+			"required": false,
+			"default": "15m",
+			"description": "Duration until removal from cache",
+			"options": [
+				{
+					"name": "30 seconds",
+					"value": "30s"
+				},
+				{
+					"name": "5 minutes",
+					"value": "5m"
+				},
+				{
+					"name": "15 minutes",
+					"value": "15m"
+				},
+				{
+					"name": "30 minutes",
+					"value": "30m"
+				},
+				{
+					"name": "1 hour",
+					"value": "1h"
+				},
+				{
+					"name": "12 hours",
+					"value": "12h"
+				},
+				{
+					"name": "24 hours",
+					"value": "24h"
+				}
+			]
+		}
+	]
+}
+

@@ -1,0 +1,11 @@
+{
+  "dvelopConfig": {
+    "baseUrl": "https://jbran-dev.d-velop.cloud",
+    "tenant": "jbran-dev",
+    "bearerToken": "3iItvfE8yaGGBnVinEjzbxhPRyZLXRGuF/iYuIpXt8ImkqTd7tbKN0Yr8GnSqs3xpcKFrnP7g1jgegzF/nt5qpj2QD0fJstlbRMi8LIygfg=&_z_A0V5ayCR6FVxhLtW1EOAAE-8Rg91bCzKZVZFrswniSZzwHHD6zz2V9YfsB8wqIMsHkckcThFJhxij20vfeK1kNxKb7Nus"
+  },
+  "outputPath": "./nodes",
+  "nodePrefix": "Dvelop",
+  "generateTests": true,
+  "includeVolatileActions": true
+}

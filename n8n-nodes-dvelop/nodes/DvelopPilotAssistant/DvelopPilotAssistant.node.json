@@ -1,0 +1,41 @@
+{
+	"displayName": "d.velop Pilot - Assistant",
+	"name": "dvelopPilotAssistant",
+	"icon": "file:dvelop.svg",
+	"group": ["transform"],
+	"version": 1,
+	"description": "Question answering for a configured assistant using a large language model (volatile action)",
+	"defaults": {
+		"name": "d.velop Pilot Assistant"
+	},
+	"inputs": ["main"],
+	"outputs": ["main"],
+	"credentials": [
+		{
+			"name": "dvelopApi",
+			"required": true
+		}
+	],
+	"properties": [
+		{
+			"displayName": "Prompt",
+			"name": "dpt_prompt",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "Enter your prompt for the AI assistant.",
+			"typeOptions": {
+				"rows": 4
+			}
+		},
+		{
+			"displayName": "Assistant",
+			"name": "dpt_assistant",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "Specify the assistant to be used (ID or name)."
+		}
+	]
+}
+

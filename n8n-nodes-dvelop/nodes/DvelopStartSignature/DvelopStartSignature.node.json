@@ -1,0 +1,84 @@
+{
+	"displayName": "Start d.velop Signature Process",
+	"name": "dvelopStartSignature",
+	"icon": "file:dvelop.svg",
+	"group": ["transform"],
+	"version": 1,
+	"description": "Starts a signature process in d.velop platform",
+	"defaults": {
+		"name": "Start Signature Process"
+	},
+	"inputs": ["main"],
+	"outputs": ["main"],
+	"credentials": [
+		{
+			"name": "dvelopApi",
+			"required": true
+		}
+	],
+	"properties": [
+		{
+			"displayName": "File Name",
+			"name": "filename",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "Name of the file to be signed"
+		},
+		{
+			"displayName": "File (Base64)",
+			"name": "file_binary",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "Base64 encoded file content to be signed"
+		},
+		{
+			"displayName": "Sign Level",
+			"name": "sign_level",
+			"type": "options",
+			"required": true,
+			"default": "advanced",
+			"description": "Level of the signature",
+			"options": [
+				{
+					"name": "Basic",
+					"value": "basic"
+				},
+				{
+					"name": "Advanced",
+					"value": "advanced"
+				},
+				{
+					"name": "Qualified",
+					"value": "qualified"
+				}
+			]
+		},
+		{
+			"displayName": "Recipients",
+			"name": "users",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "E-mail addresses or user IDs of recipients (comma-separated)"
+		},
+		{
+			"displayName": "Message",
+			"name": "message",
+			"type": "string",
+			"required": false,
+			"default": "",
+			"description": "Message to the signers"
+		},
+		{
+			"displayName": "Callback URL",
+			"name": "callback_url",
+			"type": "string",
+			"required": false,
+			"default": "",
+			"description": "Callback URL for event handling"
+		}
+	]
+}
+

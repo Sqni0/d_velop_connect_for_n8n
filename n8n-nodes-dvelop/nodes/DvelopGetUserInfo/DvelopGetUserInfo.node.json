@@ -1,0 +1,30 @@
+{
+	"displayName": "Get d.velop User Info",
+	"name": "dvelopGetUserInfo",
+	"icon": "file:dvelop.svg",
+	"group": ["transform"],
+	"version": 1,
+	"description": "Gets information about the specified user ID",
+	"defaults": {
+		"name": "Get User Info"
+	},
+	"inputs": ["main"],
+	"outputs": ["main"],
+	"credentials": [
+		{
+			"name": "dvelopApi",
+			"required": true
+		}
+	],
+	"properties": [
+		{
+			"displayName": "User ID",
+			"name": "user_id",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "ID of a d.velop cloud user"
+		}
+	]
+}
+

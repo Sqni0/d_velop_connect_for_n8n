@@ -1,0 +1,145 @@
+import {
+	IExecuteFunctions,
+} from 'n8n-core';
+
+import {
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+} from 'n8n-workflow';
+
+import { DvelopActionsApiClient } from '../api/client';
+
+export class {{node.name}} implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: '{{node.displayName}}',
+		name: '{{node.name}}',
+		icon: '{{node.icon}}',
+		group: [{{#each node.group}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}],
+		version: {{node.version}},
+		description: '{{node.description}}',
+		defaults: {
+			name: '{{node.defaults.name}}',
+		},
+		inputs: [{{#each node.inputs}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}],
+		outputs: [{{#each node.outputs}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}],
+		credentials: [
+			{{#each node.credentials}}
+			{
+				name: '{{name}}',
+				required: {{required}},
+			},
+			{{/each}}
+		],
+		properties: [
+			{{#each node.properties}}
+			{
+				displayName: '{{displayName}}',
+				name: '{{name}}',
+				type: '{{type}}',
+				required: {{required}},
+				default: {{#if (eq type 'string')}}'{{default}}'{{else}}{{default}}{{/if}},
+				{{#if description}}description: '{{description}}',{{/if}}
+				{{#if options}}
+				options: [
+					{{#each options}}
+					{
+						name: '{{name}}',
+						value: {{#if (eq ../type 'string')}}'{{value}}'{{else}}{{value}}{{/if}},
+						{{#if description}}description: '{{description}}',{{/if}}
+					},
+					{{/each}}
+				],
+				{{/if}}
+				{{#if typeOptions}}
+				typeOptions: {
+					{{#each typeOptions}}
+					{{@key}}: '{{this}}',
+					{{/each}}
+				},
+				{{/if}}
+			},
+			{{/each}}
+		],
+	};
+
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const items = this.getInputData();
+		const returnData: INodeExecutionData[] = [];
+
+		// Get credentials
+		const credentials = await this.getCredentials('dvelopApi');
+		if (!credentials) {
+			throw new Error('No credentials provided');
+		}
+
+		// Initialize API client
+		const apiClient = new DvelopActionsApiClient({
+			baseUrl: credentials.baseUrl as string,
+			tenant: credentials.tenant as string,
+			bearerToken: credentials.bearerToken as string,
+			cookieAuth: credentials.cookieAuth as string,
+		});
+
+		for (let i = 0; i < items.length; i++) {
+			try {
+				// Get node parameters
+				{{#each node.properties}}
+				const {{name}} = this.getNodeParameter('{{name}}', i) as {{#if (eq type 'string')}}string{{else if (eq type 'number')}}number{{else if (eq type 'boolean')}}boolean{{else}}any{{/if}};
+				{{/each}}
+
+				// Prepare action parameters
+				const actionParameters = {
+					{{#each node.properties}}
+					{{#unless (eq name 'dv_actions_app')}}
+					{{name}},
+					{{/unless}}
+					{{/each}}
+				};
+
+				// Execute the d.velop action
+				const result = await this.executeAction(apiClient, '{{sourceData.id}}', actionParameters);
+
+				returnData.push({
+					json: {
+						actionId: '{{sourceData.id}}',
+						actionName: '{{sourceData.name}}',
+						parameters: actionParameters,
+						result: result,
+						executedAt: new Date().toISOString(),
+					},
+				});
+
+			} catch (error) {
+				if (this.continueOnFail()) {
+					returnData.push({
+						json: {
+							error: error.message,
+							actionId: '{{sourceData.id}}',
+							actionName: '{{sourceData.name}}',
+						},
+					});
+					continue;
+				}
+				throw error;
+			}
+		}
+
+		return [returnData];
+	}
+
+	private async executeAction(
+		apiClient: DvelopActionsApiClient,
+		actionId: string,
+		parameters: Record<string, any>
+	): Promise<any> {
+		// This would be implemented based on the specific d.velop action execution API
+		// For now, we'll return a mock response
+		return {
+			success: true,
+			actionId,
+			parameters,
+			timestamp: new Date().toISOString(),
+		};
+	}
+}

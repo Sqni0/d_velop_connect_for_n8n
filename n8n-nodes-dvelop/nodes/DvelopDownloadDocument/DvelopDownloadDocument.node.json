@@ -1,0 +1,56 @@
+{
+	"displayName": "Download d.velop Document",
+	"name": "dvelopDownloadDocument",
+	"icon": "file:dvelop.svg",
+	"group": ["transform"],
+	"version": 1,
+	"description": "Downloads the document to the specified document ID",
+	"defaults": {
+		"name": "Download Document"
+	},
+	"inputs": ["main"],
+	"outputs": ["main"],
+	"credentials": [
+		{
+			"name": "dvelopApi",
+			"required": true
+		}
+	],
+	"properties": [
+		{
+			"displayName": "Repository",
+			"name": "repo_id",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "d.velop documents repository"
+		},
+		{
+			"displayName": "Document ID",
+			"name": "document_id",
+			"type": "string",
+			"required": true,
+			"default": "",
+			"description": "ID of the document"
+		},
+		{
+			"displayName": "Format",
+			"name": "document_type",
+			"type": "options",
+			"required": true,
+			"default": "original",
+			"description": "Which format should the downloaded document have?",
+			"options": [
+				{
+					"name": "Original",
+					"value": "original"
+				},
+				{
+					"name": "PDF",
+					"value": "pdf"
+				}
+			]
+		}
+	]
+}
+
