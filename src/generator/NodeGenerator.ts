@@ -1,8 +1,7 @@
 import { DvelopActionsApiClient } from '../api/client';
-import { DvelopActionDefinition, DvelopEventDefinition, GeneratorConfig } from '../types';
+import { DvelopActionDefinition, GeneratorConfig } from '../types';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import Handlebars from 'handlebars';
 
 export class NodeGenerator {
   private apiClient: DvelopActionsApiClient;
@@ -11,95 +10,134 @@ export class NodeGenerator {
   constructor(config: GeneratorConfig) {
     this.config = config;
     this.apiClient = new DvelopActionsApiClient(config.dvelopConfig);
-    if (!Handlebars.helpers.eq) Handlebars.registerHelper('eq', (a: any, b: any) => a === b);
   }
 
   async generateAllNodes(): Promise<void> {
-    console.log('🚀 Starte Node Generierung (DvelopPlatform Injektion)...');
+    console.log('🚀 Starte Node Generierung (stable + volatile Handling)...');
 
     let actions: DvelopActionDefinition[] = [];
-    let events: DvelopEventDefinition[] = [];
-
     let connected = false;
     try { connected = await this.apiClient.testConnection(); } catch (e) { console.warn('⚠️ Verbindungstest fehlgeschlagen:', (e as Error).message); }
 
-    if (!connected) {
-      console.warn('⚠️ Offline-Modus: keine Actions / Events geladen.');
-    } else {
+    if (connected) {
       try {
         console.log('📝 Lade Actions...');
         actions = await this.apiClient.getActions();
         console.log(`➡️  ${actions.length} Actions geladen.`);
       } catch (e) { console.warn('⚠️ Actions laden fehlgeschlagen:', (e as Error).message); }
-      try {
-        console.log('📡 Lade Events...');
-        events = await this.apiClient.getEventDefinitions();
-        console.log(`➡️  ${events.length} Events geladen.`);
-      } catch (e) { console.warn('⚠️ Events laden fehlgeschlagen:', (e as Error).message); }
+    } else {
+      console.warn('⚠️ Offline – es werden keine stable Actions injiziert.');
     }
 
-    await this.injectIntoPlatformNode(actions, events);
+    await this.injectStableActions(actions.filter(a => !a.volatile));
     await this.generateCredentialsFile();
     console.log('✅ Generierung abgeschlossen.');
   }
 
-  private async injectIntoPlatformNode(actions: DvelopActionDefinition[], events: DvelopEventDefinition[]): Promise<void> {
-    console.log('🔧 Injektion in DvelopPlatform Node...');
+  private buildOperationOption(a: DvelopActionDefinition): string {
+    const name = this.escape(a.display_name || a.id);
+    const desc = this.escape(a.description || '');
+    const endpoint = a.endpoint || `/actions/api/execute/${a.id}`;
+    return `{
+          name: '${name}',
+          value: '${a.id}',
+          description: '${desc}',
+          routing: { request: { method: 'POST', url: '${endpoint}' } },
+        }`;
+  }
+
+  private mapInputProperty(actionId: string, p: any): string {
+    const displayName = this.escape(p.title || p.id);
+    const description = this.escape(p.description || '');
+    const required = !!p.required;
+    const dvelopType: string = p.type;
+    const fixed = Array.isArray(p.fixed_value_set) ? p.fixed_value_set : p.fixed_value_set?.values;
+
+    const baseDisplayOptions = `displayOptions: { show: { actionMode: ['stable'], operation: ['${actionId}'] } }`;
+
+    // Type mapping
+    let type = 'string';
+    if (dvelopType === 'DateTime') type = 'dateTime';
+    if (fixed && Array.isArray(fixed)) type = 'options';
+
+    // Default value
+    const defVal = (p.initial_value ?? '').toString().replace(/'/g, "\\'");
+
+    // Options mapping
+    let optionsBlock = '';
+    if (type === 'options' && fixed) {
+      const opts = fixed.map((o: any) => `\n            { name: '${this.escape(o.display_name || o.value)}', value: '${this.escape(o.value)}' }`).join(',');
+      optionsBlock = `,\n        options: [${opts}\n        ]`;
+    }
+
+    // Body expression depending on type
+    let bodyValueExpr = '={{$value}}';
+    if (dvelopType === '[]String') bodyValueExpr = '={{ $value.split(",").map(i=>i.trim()).filter(Boolean) }}';
+    if (dvelopType === 'Object' || dvelopType === '[]Object') bodyValueExpr = '={{ (()=>{ try { return JSON.parse($value) } catch { return $value } })() }}';
+    if (dvelopType === 'Base64Blob') bodyValueExpr = '={{$value}}'; // user supplies base64
+
+    return `{
+        displayName: '${displayName}',
+        name: '${p.id}',
+        type: '${type}',
+        ${required ? 'required: true,' : ''}
+        default: '${defVal}',
+        description: '${description}${p.visibility === 'Advanced' ? ' (Advanced)' : ''}',
+        ${baseDisplayOptions},
+        routing: { request: { body: { '${p.id}': '${bodyValueExpr}' } } }${optionsBlock}
+      }`;
+  }
+
+  private escape(v: string): string {
+    return (v || '').replace(/`/g, '\\`').replace(/'/g, "\\'").replace(/\$/g, '\\$');
+  }
+
+  private async injectStableActions(stable: DvelopActionDefinition[]): Promise<void> {
     const platformNodePath = this.config.platformNodePath || path.resolve(process.cwd(), '@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopPlatform.node.ts');
     if (!(await fs.pathExists(platformNodePath))) {
-      console.warn(`⚠️ DvelopPlatform Node nicht gefunden: ${platformNodePath}`);
+      console.warn('⚠️ DvelopPlatform Node Datei nicht gefunden, überspringe Injektion.');
       return;
     }
 
-    let fileContent = await fs.readFile(platformNodePath, 'utf-8');
+    let content = await fs.readFile(platformNodePath, 'utf-8');
 
-    const sanitize = (id: string) => id.replace(/[^a-zA-Z0-9_]/g, '_');
-    const esc = (s?: unknown) => {
-      if (s === null || s === undefined) return '';
-      let str: string;
-      if (typeof s === 'string') str = s;
-      else if (typeof s === 'object') {
-        try { str = JSON.stringify(s); } catch { str = String(s); }
-      } else str = String(s);
-      return str.replace(/`/g, '\\`').replace(/\$/g, '\\$');
-    };
+    const opsRegex = /(\/\/ <DVELOP-STABLE-OPS-START>)([\s\S]*?)(\/\/ <DVELOP-STABLE-OPS-END>)/m;
+    const fieldsRegex = /(\/\/ <DVELOP-STABLE-FIELDS-START>)([\s\S]*?)(\/\/ <DVELOP-STABLE-FIELDS-END>)/m;
 
-    const actionEntries = actions.map(a => `\t\t\t// Action: ${esc(a.display_name || a.id)}\n\t\t\t${sanitize(a.id)}: {\n\t\t\t\tid: '${esc(a.id)}',\n\t\t\t\tname: '${esc(a.display_name || a.id)}',\n\t\t\t\tdescription: '${esc(a.description)}',\n\t\t\t\tendpoint: '${esc(a.endpoint || `/actions/api/execute/${a.id}`)}',\n\t\t\t\texecutionMode: '${esc(a.execution_mode)}',\n\t\t\t\tvolatile: ${a.volatile},\n\t\t\t},`).join('\n') || '\t\t\t// (keine Actions gefunden)';
+    const sorted = stable.sort((a, b) => (a.display_name || a.id).localeCompare(b.display_name || b.id));
 
-    const eventEntries = events.map(e => `\t\t\t// Event: ${esc(e.name)}\n\t\t\t${sanitize(e.id)}: {\n\t\t\t\tid: '${esc(e.id)}',\n\t\t\t\tname: '${esc(e.name)}',\n\t\t\t\tdescription: '${esc(e.description)}',\n\t\t\t\ttype: '${esc(e.type)}',\n\t\t\t\tapp: '${esc(e.app)}',\n\t\t\t},`).join('\n') || '\t\t\t// (keine Events gefunden)';
+    const opsList = sorted.map(a => this.buildOperationOption(a)).join(',\n\t\t\t\t');
+    const opsReplacement = `// <DVELOP-STABLE-OPS-START>\n\t\t\t\t// Generiert am ${new Date().toISOString()} (stable Actions: ${stable.length})\n\t\t\t\t${opsList}\n\t\t\t\t// <DVELOP-STABLE-OPS-END>`;
 
-    const actionsRegex = /(\/\/ <DVELOP-ACTIONS-START>)([\s\S]*?)(\/\/ <DVELOP-ACTIONS-END>)/m;
-    const eventsRegex = /(\/\/ <DVELOP-EVENTS-START>)([\s\S]*?)(\/\/ <DVELOP-EVENTS-END>)/m;
+    const fieldsList = sorted.map(a => {
+      if (!Array.isArray(a.input_properties) || a.input_properties.length === 0) return `// Action ${a.id}: keine Input Properties`;
+      return a.input_properties.map(p => this.mapInputProperty(a.id, p)).join(',\n\t\t\t');
+    }).join(',\n\t\t\t');
+    const fieldsReplacement = `// <DVELOP-STABLE-FIELDS-START>\n\t\t\t// Generiert am ${new Date().toISOString()} (stable Action Fields)\n\t\t\t${fieldsList}\n\t\t\t// <DVELOP-STABLE-FIELDS-END>`;
 
-    const newActionsBlock = `// <DVELOP-ACTIONS-START>\n\t\t\t// Generiert am ${new Date().toISOString()} (Actions: ${actions.length})\n${actionEntries}\n\t\t\t// <DVELOP-ACTIONS-END>`;
-    const newEventsBlock = `// <DVELOP-EVENTS-START>\n\t\t\t// Generiert am ${new Date().toISOString()} (Events: ${events.length})\n${eventEntries}\n\t\t\t// <DVELOP-EVENTS-END>`;
+    if (opsRegex.test(content)) content = content.replace(opsRegex, opsReplacement); else console.warn('⚠️ Stable Ops Marker nicht gefunden.');
+    if (fieldsRegex.test(content)) content = content.replace(fieldsRegex, fieldsReplacement); else console.warn('⚠️ Stable Fields Marker nicht gefunden.');
 
-    if (actionsRegex.test(fileContent)) fileContent = fileContent.replace(actionsRegex, newActionsBlock); else console.warn('⚠️ Actions Marker fehlen.');
-    if (eventsRegex.test(fileContent)) fileContent = fileContent.replace(eventsRegex, newEventsBlock); else console.warn('⚠️ Events Marker fehlen.');
-
-    await fs.writeFile(platformNodePath, fileContent, 'utf-8');
-    console.log('🧩 DvelopPlatform Node aktualisiert.');
+    await fs.writeFile(platformNodePath, content, 'utf-8');
+    console.log('🧩 Stabile Actions injiziert.');
   }
 
   private async generateCredentialsFile(): Promise<void> {
-    console.log('🔑 Prüfe Credentials Template...');
-    const distTpl = path.join(__dirname, '../templates', 'credentials.hbs');
-    const srcTpl = path.join(process.cwd(), 'src', 'templates', 'credentials.hbs');
-    let tpl = distTpl;
-    if (!(await fs.pathExists(tpl))) {
-      if (await fs.pathExists(srcTpl)) { tpl = srcTpl; console.log('ℹ️ Verwende src/templates/credentials.hbs'); }
-      else { console.warn('⚠️ credentials.hbs fehlt – überspringe.'); return; }
+    // Idempotent – wenn bereits vorhanden, nichts tun
+    const credentialsPath = path.join(this.config.outputPath, '../credentials');
+    await fs.ensureDir(credentialsPath);
+    const target = path.join(credentialsPath, 'DvelopApi.credentials.ts');
+    if (await fs.pathExists(target)) return; // bereits vorhanden
+
+    const templatePath = path.join(process.cwd(), 'src', 'templates', 'credentials.hbs');
+    if (!(await fs.pathExists(templatePath))) {
+      console.warn('⚠️ credentials.hbs nicht gefunden – keine neue Credentials Datei erstellt.');
+      return;
     }
-
-    const outDir = path.join(this.config.outputPath, '../credentials');
-    await fs.ensureDir(outDir);
-    const target = path.join(outDir, 'DvelopApi.credentials.ts');
-    if (await fs.pathExists(target)) { console.log('ℹ️ Credentials existieren – kein Überschreiben.'); return; }
-
-    const tplContent = await fs.readFile(tpl, 'utf-8');
-    const template = Handlebars.compile(tplContent);
-    const code = template({ timestamp: new Date().toISOString(), generator: 'dvelop-n8n-generator' });
+    const tpl = await fs.readFile(templatePath, 'utf-8');
+    const compiled = (require('handlebars') as typeof import('handlebars')).compile(tpl);
+    const code = compiled({ timestamp: new Date().toISOString(), generator: 'dvelop-n8n-generator' });
     await fs.writeFile(target, code, 'utf-8');
-    console.log('✅ Credentials Datei erzeugt.');
+    console.log('✅ Credentials Datei bereitgestellt.');
   }
 }
