@@ -17,10 +17,9 @@ variables:
 build-n8n-nodes:
   stage: build
   extends: .hyperautomation.snippets.yarn
-  before_script:
+  script:
     - cd @dvelop/n8n-nodes-example
     - yarn install --immutable
-  script:
     - yarn build
   artifacts:
     paths:
