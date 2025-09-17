@@ -16,7 +16,6 @@ variables:
 
 build-n8n-nodes:
   stage: build
-  image: node:18-alpine
   extends: .hyperautomation.snippets.yarn
   before_script:
     - cd @dvelop/n8n-nodes-example
