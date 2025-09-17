@@ -4,9 +4,9 @@ include:
 
 stages:
   - generate
+  - deploy
   - test
   - compliance
-  - deploy
 
 variables:
   IMAGE_NAME: "dockerhub.d-velop.de/hyperautomation/dv-n8n"
