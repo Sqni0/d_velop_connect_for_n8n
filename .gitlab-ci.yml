@@ -17,6 +17,7 @@ variables:
 build-n8n-nodes:
   stage: build
   image: dockerhub.d-velop.de/hyperautomation-tools/node:24.7.0
+  extends: .vault-linux
   script:
     - YARN_NPM_ACCESS_TOKEN=$(curl -H"Authorization:Bearer $ARTIFACTORY_ACCESS_TOKEN" -XPOST "https://repo.d-velop.de/artifactory/api/security/token" -d "username=$MVN_ARTIFACTORY_USERNAME" -d "expires_in=3600" -d "description=ci_job_access_token" | jq -r '.access_token')
     - cd @dvelop/n8n-nodes-example
