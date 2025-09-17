@@ -4,6 +4,7 @@ include:
 
 stages:
   - generate
+  - build
   - deploy
   - test
   - compliance
@@ -11,11 +12,30 @@ stages:
 variables:
   IMAGE_NAME: "dockerhub.d-velop.de/hyperautomation/dv-n8n"
 
+build-n8n-nodes:
+  stage: build
+  image: node:18-alpine
+  before_script:
+    - cd @dvelop/n8n-nodes-example
+    - npm ci
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - @dvelop/n8n-nodes-example/dist/
+    expire_in: 1 hour
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - @dvelop/n8n-nodes-example/node_modules/
+
 publish-image:
   stage: deploy
   rules:
     - when: manual
   extends: .dvelop.snippets.kaniko
+  dependencies:
+    - build-n8n-nodes
   variables:
     DVELOP_KANIKO_IMAGE: "${IMAGE_NAME}"
     DVELOP_KANIKO_IMAGE_TAGS: "latest;${CI_COMMIT_SHA}"
