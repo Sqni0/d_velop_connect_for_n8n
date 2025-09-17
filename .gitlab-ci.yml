@@ -17,17 +17,18 @@ build-n8n-nodes:
   image: node:18-alpine
   before_script:
     - cd @dvelop/n8n-nodes-example
-    - npm ci
+    - yarn install --frozen-lockfile
   script:
-    - npm run build
+    - yarn build
   artifacts:
     paths:
-      - ./@dvelop/n8n-nodes-example/dist
+      - ./@dvelop/n8n-nodes-example/dist/
     expire_in: 1 hour
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - ./@dvelop/n8n-nodes-example/node_modules/
+      - @dvelop/n8n-nodes-example/yarn.lock
 
 publish-image:
   stage: deploy
