@@ -8,8 +8,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Copy custom nodes
-COPY @dvelop/n8n-nodes-example /data/nodes/@dvelop/n8n-nodes-example
-RUN cd /data/nodes/@dvelop/n8n-nodes-example && npm install
+COPY ./@dvelop/n8n-nodes-example:/home/node/.n8n/custom
 
 # Switch back to n8n user
 USER node
