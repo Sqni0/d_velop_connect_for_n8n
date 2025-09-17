@@ -22,12 +22,12 @@ build-n8n-nodes:
     - npm run build
   artifacts:
     paths:
-      - @dvelop/n8n-nodes-example/dist/
+      - ./@dvelop/n8n-nodes-example/dist
     expire_in: 1 hour
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
-      - @dvelop/n8n-nodes-example/node_modules/
+      - ./@dvelop/n8n-nodes-example/node_modules/
 
 publish-image:
   stage: deploy
