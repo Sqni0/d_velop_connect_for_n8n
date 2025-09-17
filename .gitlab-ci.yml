@@ -19,7 +19,7 @@ build-n8n-nodes:
   extends: .hyperautomation.snippets.yarn
   script:
     - cd @dvelop/n8n-nodes-example
-    - yarn install
+    - npm install
     - yarn build
   artifacts:
     paths:
