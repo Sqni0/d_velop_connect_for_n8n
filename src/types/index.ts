@@ -89,14 +89,25 @@ export interface ParameterValidation {
 
 export interface DvelopEventDefinition {
   id: string;
-  name: string;
-  description?: string;
-  type: string;
-  app: string;
-  version?: string;
-  schema: EventSchema;
+  appName: string;
+  displayName: Record<string, string>; // Multi-language display names
+  description?: Record<string, string>; // Multi-language descriptions
+  properties: DvelopEventProperty[];
 }
 
+export interface DvelopEventProperty {
+  id: string;
+  type: string;
+  title?: Record<string, string>;
+  description?: Record<string, string>;
+  optional: boolean;
+  objectProperties?: DvelopEventProperty[] | null;
+  fixedValueSet?: DvelopFixedValueItem[] | null;
+  dataQueryUrl?: string;
+  dataQueryParameter?: Record<string, any> | null;
+}
+
+// Legacy Event interfaces (keep for backward compatibility)
 export interface EventSchema {
   type: 'object';
   properties: Record<string, SchemaProperty>;

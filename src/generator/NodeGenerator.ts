@@ -1,5 +1,5 @@
 import { DvelopActionsApiClient } from '../api/client';
-import { DvelopActionDefinition, GeneratorConfig } from '../types';
+import {DvelopActionDefinition, DvelopEventDefinition, GeneratorConfig} from '../types';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
@@ -13,9 +13,10 @@ export class NodeGenerator {
   }
 
   async generateAllNodes(): Promise<void> {
-    console.log('🚀 Starte Node Generierung (stable + volatile Handling)...');
+    console.log('🚀 Starte Node Generierung (stable Actions + Events)...');
 
     let actions: DvelopActionDefinition[] = [];
+    let eventDefs: any[] = [];
     let connected = false;
     try { connected = await this.apiClient.testConnection(); } catch (e) { console.warn('⚠️ Verbindungstest fehlgeschlagen:', (e as Error).message); }
 
@@ -25,11 +26,18 @@ export class NodeGenerator {
         actions = await this.apiClient.getActions();
         console.log(`➡️  ${actions.length} Actions geladen.`);
       } catch (e) { console.warn('⚠️ Actions laden fehlgeschlagen:', (e as Error).message); }
+
+      try {
+        console.log('📝 Lade Event Definitions...');
+        eventDefs = await this.apiClient.getEventDefinitions();
+        console.log(`➡️  ${eventDefs.length} Event Definitions geladen.`);
+      } catch (e) { console.warn('⚠️ Event Definitions laden fehlgeschlagen:', (e as Error).message); }
     } else {
-      console.warn('⚠️ Offline – es werden keine stable Actions injiziert.');
+      console.warn('⚠️ Offline – es werden keine stable Actions oder Events injiziert.');
     }
 
     await this.injectStableActions(actions.filter(a => !a.volatile));
+    await this.injectEventDefinitions(eventDefs);
     await this.generateCredentialsFile();
     console.log('✅ Generierung abgeschlossen.');
   }
@@ -89,7 +97,8 @@ export class NodeGenerator {
   }
 
   private escape(v: string): string {
-    return (v || '').replace(/`/g, '\\`').replace(/'/g, "\\'").replace(/\$/g, '\\$');
+      console.log("dafuq is v", v);
+      return (v || '').replace(/`/g, '\\`').replace(/'/g, "\\'").replace(/\$/g, '\\$');
   }
 
   private async injectStableActions(stable: DvelopActionDefinition[]): Promise<void> {
@@ -120,6 +129,43 @@ export class NodeGenerator {
 
     await fs.writeFile(platformNodePath, content, 'utf-8');
     console.log('🧩 Stabile Actions injiziert.');
+  }
+
+  private async injectEventDefinitions(eventDefs: DvelopEventDefinition[]): Promise<void> {
+    const platformNodePath = this.config.platformNodePath || path.resolve(process.cwd(), '@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopPlatform.node.ts');
+    if (!(await fs.pathExists(platformNodePath))) {
+      console.warn('⚠️ DvelopPlatform Node Datei nicht gefunden, überspringe Event-Injektion.');
+      return;
+    }
+
+    let content = await fs.readFile(platformNodePath, 'utf-8');
+
+    const eventRegex = /(\/\/ <DVELOP-EVENTS-START>)([\s\S]*?)(\/\/ <DVELOP-EVENTS-END>)/m;
+
+    const sorted = eventDefs.sort((a, b) => {
+      const aName = a.displayName?.en || a.displayName?.de || a.id;
+      const bName = b.displayName?.en || b.displayName?.de || b.id;
+      return aName.localeCompare(bName);
+    });
+
+    const eventList = sorted.map(e => {
+      const name = this.escape(e.displayName?.en || e.displayName?.de || e.id);
+      const desc = this.escape(e.description?.en || e.description?.de || '');
+      const schemaProps = e.properties.map(p => `${!p.optional ? '*' : ''}${p.id}:${p.type}`).join(', ');
+      const fullDesc = desc + (schemaProps ? ` | Schema: ${schemaProps}` : '');
+      return `{ name: '${name}', value: '${e.id}', description: '${fullDesc}' }`;
+    }).join(',\n\t\t\t\t\t');
+
+    const eventReplacement = `// <DVELOP-EVENTS-START>\n\t\t\t\t\t// Generiert am ${new Date().toISOString()} (Events: ${eventDefs.length})\n\t\t\t\t\t${eventList}\n\t\t\t\t\t// <DVELOP-EVENTS-END>`;
+
+    if (eventRegex.test(content)) {
+      content = content.replace(eventRegex, eventReplacement);
+    } else {
+      console.warn('⚠️ Events Marker nicht gefunden.');
+    }
+
+    await fs.writeFile(platformNodePath, content, 'utf-8');
+    console.log('🧩 Events injiziert.');
   }
 
   private async generateCredentialsFile(): Promise<void> {
