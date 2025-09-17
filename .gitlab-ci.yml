@@ -19,7 +19,8 @@ build-n8n-nodes:
   extends: .hyperautomation.snippets.yarn
   script:
     - cd @dvelop/n8n-nodes-example
-    - npm install
+    - yarn config set "strict-ssl" false #just make it work for now
+    - yarn install --immutable
     - yarn build
   artifacts:
     paths:
