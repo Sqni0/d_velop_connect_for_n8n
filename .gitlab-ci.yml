@@ -24,6 +24,7 @@ build-n8n-nodes:
     - yarn set version stable || true
     - yarn config set --home npmRegistryServer "https://repo.d-velop.de/artifactory/api/npm/npm-repo/"
     - yarn config set --home npmAlwaysAuth "true"
+    - yarn config set --home npmAuthToken "$YARN_NPM_ACCESS_TOKEN"
     - yarn install
     - yarn build
   artifacts:
