@@ -33,7 +33,7 @@ export class NodeGenerator {
         console.log(`➡️  ${eventDefs.length} Event Definitions geladen.`);
       } catch (e) { console.warn('⚠️ Event Definitions laden fehlgeschlagen:', (e as Error).message); }
     } else {
-      console.warn('⚠️ Offline – es werden keine stable Actions oder Events injiziert.');
+      console.warn('⚠️ Offline ��� es werden keine stable Actions oder Events injiziert.');
     }
 
     await this.injectStableActions(actions.filter(a => !a.volatile));
@@ -97,18 +97,21 @@ export class NodeGenerator {
   }
 
   private escape(v: string): string {
-      console.log("dafuq is v", v);
       return (v || '').replace(/`/g, '\\`').replace(/'/g, "\\'").replace(/\$/g, '\\$');
   }
 
   private async injectStableActions(stable: DvelopActionDefinition[]): Promise<void> {
-    const platformNodePath = this.config.platformNodePath || path.resolve(process.cwd(), '@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopPlatform.node.ts');
-    if (!(await fs.pathExists(platformNodePath))) {
-      console.warn('⚠️ DvelopPlatform Node Datei nicht gefunden, überspringe Injektion.');
+    // Find the DvelopActions.node.ts file instead of DvelopPlatform.node.ts
+    const actionsNodePath = this.config.platformNodePath
+      ? path.dirname(this.config.platformNodePath) + '/DvelopActions.node.ts'
+      : path.resolve(process.cwd(), '@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopActions.node.ts');
+
+    if (!(await fs.pathExists(actionsNodePath))) {
+      console.warn('⚠️ DvelopActions Node Datei nicht gefunden, überspringe Actions-Injektion.');
       return;
     }
 
-    let content = await fs.readFile(platformNodePath, 'utf-8');
+    let content = await fs.readFile(actionsNodePath, 'utf-8');
 
     const opsRegex = /(\/\/ <DVELOP-STABLE-OPS-START>)([\s\S]*?)(\/\/ <DVELOP-STABLE-OPS-END>)/m;
     const fieldsRegex = /(\/\/ <DVELOP-STABLE-FIELDS-START>)([\s\S]*?)(\/\/ <DVELOP-STABLE-FIELDS-END>)/m;
@@ -124,21 +127,25 @@ export class NodeGenerator {
     }).join(',\n\t\t\t');
     const fieldsReplacement = `// <DVELOP-STABLE-FIELDS-START>\n\t\t\t// Generiert am ${new Date().toISOString()} (stable Action Fields)\n\t\t\t${fieldsList}\n\t\t\t// <DVELOP-STABLE-FIELDS-END>`;
 
-    if (opsRegex.test(content)) content = content.replace(opsRegex, opsReplacement); else console.warn('⚠️ Stable Ops Marker nicht gefunden.');
-    if (fieldsRegex.test(content)) content = content.replace(fieldsRegex, fieldsReplacement); else console.warn('⚠️ Stable Fields Marker nicht gefunden.');
+    if (opsRegex.test(content)) content = content.replace(opsRegex, opsReplacement); else console.warn('⚠️ Stable Ops Marker nicht gefunden in DvelopActions.node.ts');
+    if (fieldsRegex.test(content)) content = content.replace(fieldsRegex, fieldsReplacement); else console.warn('⚠️ Stable Fields Marker nicht gefunden in DvelopActions.node.ts');
 
-    await fs.writeFile(platformNodePath, content, 'utf-8');
-    console.log('🧩 Stabile Actions injiziert.');
+    await fs.writeFile(actionsNodePath, content, 'utf-8');
+    console.log('🧩 Stabile Actions in DvelopActions.node.ts injiziert.');
   }
 
   private async injectEventDefinitions(eventDefs: DvelopEventDefinition[]): Promise<void> {
-    const platformNodePath = this.config.platformNodePath || path.resolve(process.cwd(), '@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopPlatform.node.ts');
-    if (!(await fs.pathExists(platformNodePath))) {
-      console.warn('⚠️ DvelopPlatform Node Datei nicht gefunden, überspringe Event-Injektion.');
+    // Find the DvelopTrigger.node.ts file instead of DvelopPlatform.node.ts
+    const triggerNodePath = this.config.platformNodePath
+      ? path.dirname(this.config.platformNodePath) + '/DvelopTrigger.node.ts'
+      : path.resolve(process.cwd(), '@dvelop/n8n-nodes-example/nodes/DvelopPlatform/DvelopTrigger.node.ts');
+
+    if (!(await fs.pathExists(triggerNodePath))) {
+      console.warn('⚠️ DvelopTrigger Node Datei nicht gefunden, überspringe Event-Injektion.');
       return;
     }
 
-    let content = await fs.readFile(platformNodePath, 'utf-8');
+    let content = await fs.readFile(triggerNodePath, 'utf-8');
 
     const eventRegex = /(\/\/ <DVELOP-EVENTS-START>)([\s\S]*?)(\/\/ <DVELOP-EVENTS-END>)/m;
 
@@ -161,11 +168,11 @@ export class NodeGenerator {
     if (eventRegex.test(content)) {
       content = content.replace(eventRegex, eventReplacement);
     } else {
-      console.warn('⚠️ Events Marker nicht gefunden.');
+      console.warn('⚠️ Events Marker nicht gefunden in DvelopTrigger.node.ts');
     }
 
-    await fs.writeFile(platformNodePath, content, 'utf-8');
-    console.log('🧩 Events injiziert.');
+    await fs.writeFile(triggerNodePath, content, 'utf-8');
+    console.log('🧩 Events in DvelopTrigger.node.ts injiziert.');
   }
 
   private async generateCredentialsFile(): Promise<void> {

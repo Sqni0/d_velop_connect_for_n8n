@@ -1,0 +1,22 @@
+include:
+  - project: "dvelop/include"
+    file: "dvelop.gitlab-ci.yml"
+
+stages:
+  - generate
+  - test
+  - compliance
+  - deploy
+
+variables:
+  IMAGE_NAME: "dockerhub.d-velop.de/hyperautomation/dv-n8n"
+
+publish-image:
+  stage: deploy
+  rules:
+    - when: manual
+  extends: .dvelop.snippets.kaniko
+  variables:
+    DVELOP_KANIKO_IMAGE: "${IMAGE_NAME}"
+    DVELOP_KANIKO_IMAGE_TAGS: "latest;${CI_COMMIT_SHA}"
+    DVELOP_KANIKO_CUSTOM_FLAGS: "--build-arg build_version=${CI_COMMIT_SHA}"
