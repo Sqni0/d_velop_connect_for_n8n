@@ -142,3 +142,4 @@ dvelop-config.json
 bearer-token.txt
 
 .yarn
+/@dvelop/n8n-nodes-example/node-modules
