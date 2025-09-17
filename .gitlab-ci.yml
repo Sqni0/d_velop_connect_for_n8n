@@ -21,6 +21,7 @@ build-n8n-nodes:
     - cd @dvelop/n8n-nodes-example
     - corepack enable
     - yarn set version stable || true
+    - yarn config set --home npmRegistryServer "https://repo.d-velop.de/artifactory/api/npm/npm-repo/"
     - yarn install
     - yarn build
   artifacts:
