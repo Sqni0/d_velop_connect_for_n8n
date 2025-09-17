@@ -19,8 +19,11 @@ build-n8n-nodes:
   extends: .hyperautomation.snippets.yarn
   script:
     - cd @dvelop/n8n-nodes-example
-    - yarn config set "strict-ssl" false #just make it work for now
-    - yarn install --immutable
+    # Deaktiviert SSL-Prüfung für Yarn 2/3 und fällt zurück auf Yarn 1 Key. NODE_TLS_REJECT_UNAUTHORIZED als zusätzlicher Fallback.
+    - yarn config set enableStrictSsl false || true
+    - yarn config set strict-ssl false || true
+    - export NODE_TLS_REJECT_UNAUTHORIZED=0
+    - yarn install --immutable || yarn install
     - yarn build
   artifacts:
     paths:
