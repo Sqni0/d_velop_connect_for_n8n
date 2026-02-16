@@ -12,46 +12,19 @@
 import type * as n8nWorkflow from 'n8n-workflow';
 
 /**
- * IMPORTANT:
+ *
  * - Keep "stable" operation values as the actionId (string).
  * - Call the same execute endpoint dynamically for BOTH stable and volatile:
  *   POST /actions/api/execute/{actionId}
  */
 
-// ✅ These must NOT be commented out, because we use StableOp as a type.
 type StableOp =
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT'
 	| 'integrationplatform_integrationplatform_GET_CACHE_URLS'
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO'
 	| 'integrationplatform_integrationplatform_GET_USER_INFO'
-	| 'integrationplatform_inbound_CreateInboundBatch'
-	| 'actionstest_proxyToScripting'
-	| 'integrationplatform_sign_StartSignaturProcess';
+	| 'integrationplatform_inbound_CreateInboundBatch';
 
-function toArrayFromCommaList(value: string): string[] {
-	return value
-		.split(',')
-		.map((i) => i.trim())
-		.filter(Boolean);
-}
-
-async function getFileAsBase64FromBinary(
-	this: n8nWorkflow.IExecuteFunctions,
-	itemIndex: number,
-	binaryPropertyName: string,
-): Promise<{ base64: string; fileName?: string; mimeType?: string }> {
-	const bin = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
-
-	// n8n binary data contains base64 in bin.data
-	// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
-	if (!bin?.data) throw new Error(`Binary property "${binaryPropertyName}" has no data.`);
-
-	return {
-		base64: bin.data,
-		fileName: bin.fileName,
-		mimeType: bin.mimeType,
-	};
-}
 
 export class DvelopActions implements n8nWorkflow.INodeType {
 	description: n8nWorkflow.INodeTypeDescription = {
@@ -88,7 +61,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'options',
 				noDataExpression: true,
 
-				// ✅ FIX: was "activationMode" (wrong). Must be "actionMode".
+				
 				displayOptions: { show: { actionMode: ['stable'] } },
 
 				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
@@ -122,18 +95,6 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 						value: 'integrationplatform_inbound_CreateInboundBatch',
 						description: 'Imports a document via d.velop inbound',
 						action: 'Imports a document via d velop inbound',
-					},
-					{
-						name: 'proxyToScripting',
-						value: 'actionstest_proxyToScripting',
-						description: 'Proxy',
-						action: 'Proxy',
-					},
-					{
-						name: 'Start Signature Process',
-						value: 'integrationplatform_sign_StartSignaturProcess',
-						description: 'Starts a signature process',
-						action: 'Starts a signature process',
 					},
 				],
 				default: 'integrationplatform_integrationplatform_GET_DOCUMENT',
@@ -169,7 +130,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'], actionMode: ['stable'] } },
 			},
 			{
 				displayName: 'Document ID',
@@ -177,7 +138,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'], actionMode: ['stable'] } },
 			},
 			{
 				displayName: 'Format',
@@ -189,10 +150,10 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					{ name: 'Original', value: 'original' },
 					{ name: 'PDF', value: 'pdf' },
 				],
-				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'], actionMode: ['stable'] } },
 			},
 
-			// GET_CACHE_URLS (file_binary + TTL)
+			// GET_CACHE_URLS 
 			{
 				displayName: 'File Source',
 				name: 'cacheUrls_fileSource',
@@ -275,7 +236,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_USER_INFO'] } },
 			},
 
-			// INBOUND CreateInboundBatch (filename + file_binary + batch_profile)
+			// INBOUND CreateInboundBatch
 			{
 				displayName: 'File Name',
 				name: 'inbound_filename',
@@ -323,114 +284,6 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				displayOptions: { show: { operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
 			},
 
-			// proxyToScripting
-			{
-				displayName: 'Name',
-				name: 'proxy_name',
-				type: 'string',
-				required: true,
-				default: '',
-				displayOptions: { show: { operation: ['actionstest_proxyToScripting'] } },
-			},
-			{
-				displayName: 'Endpoint',
-				name: 'proxy_endpoint',
-				type: 'string',
-				required: true,
-				default: '',
-				displayOptions: { show: { operation: ['actionstest_proxyToScripting'] } },
-			},
-			{
-				displayName: 'eventId',
-				name: 'proxy_eventId',
-				type: 'string',
-				required: true,
-				default: '',
-				displayOptions: { show: { operation: ['actionstest_proxyToScripting'] } },
-			},
-
-			// StartSignaturProcess (filename + file_binary + sign_level + users + optional)
-			{
-				displayName: 'File Name',
-				name: 'sign_filename',
-				type: 'string',
-				required: true,
-				default: '',
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
-			{
-				displayName: 'File Source',
-				name: 'sign_fileSource',
-				type: 'options',
-				default: 'binary',
-				options: [
-					{ name: 'From N8n Binary', value: 'binary' },
-					{ name: 'From Base64/String', value: 'string' },
-				],
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
-			{
-				displayName: 'Input Binary Property',
-				name: 'sign_inputBinaryProperty',
-				type: 'string',
-				default: 'data',
-				displayOptions: {
-					show: { operation: ['integrationplatform_sign_StartSignaturProcess'], sign_fileSource: ['binary'] },
-				},
-			},
-			{
-				displayName: 'File (Base64/String)',
-				name: 'sign_fileBinaryString',
-				type: 'string',
-				required: true,
-				default: '',
-				displayOptions: {
-					show: { operation: ['integrationplatform_sign_StartSignaturProcess'], sign_fileSource: ['string'] },
-				},
-			},
-			{
-				displayName: 'Sign Level',
-				name: 'sign_level',
-				type: 'options',
-				required: true,
-				default: 'advanced',
-				options: [
-					{ name: 'Basic', value: 'basic' },
-					{ name: 'Advanced', value: 'advanced' },
-					{ name: 'Qualified', value: 'qualified' },
-				],
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
-			{
-				displayName: 'Recipient (Comma Separated)',
-				name: 'sign_usersCsv',
-				type: 'string',
-				required: true,
-				default: '',
-				description: 'E-mail address or user ID of the recipient (comma-separated)',
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
-			{
-				displayName: 'Message',
-				name: 'sign_message',
-				type: 'string',
-				default: '',
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
-			{
-				displayName: 'Initiator Name',
-				name: 'sign_shareUserAlternativeName',
-				type: 'string',
-				default: '',
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
-			{
-				displayName: 'Callback URL',
-				name: 'sign_callbackUrl',
-				type: 'string',
-				default: '',
-				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-			},
 		],
 	};
 
@@ -627,39 +480,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 
 					payload.batch_profile = this.getNodeParameter('inbound_batchProfile', i);
 					break;
-				}
-
-				case 'actionstest_proxyToScripting': {
-					payload.name = this.getNodeParameter('proxy_name', i);
-					payload.endpoint = this.getNodeParameter('proxy_endpoint', i);
-					payload.eventId = this.getNodeParameter('proxy_eventId', i);
-					break;
-				}
-
-				case 'integrationplatform_sign_StartSignaturProcess': {
-					payload.filename = this.getNodeParameter('sign_filename', i);
-
-					const fileSource = this.getNodeParameter('sign_fileSource', i) as 'binary' | 'string';
-					if (fileSource === 'binary') {
-						const binProp = this.getNodeParameter('sign_inputBinaryProperty', i) as string;
-						const { base64 } = await getFileAsBase64FromBinary.call(this, i, binProp);
-						payload.file_binary = base64;
-					} else {
-						payload.file_binary = this.getNodeParameter('sign_fileBinaryString', i);
-					}
-
-					payload.sign_level = this.getNodeParameter('sign_level', i);
-					payload.users = toArrayFromCommaList(this.getNodeParameter('sign_usersCsv', i) as string);
-
-					const message = this.getNodeParameter('sign_message', i) as string;
-					const initiator = this.getNodeParameter('sign_shareUserAlternativeName', i) as string;
-					const cb = this.getNodeParameter('sign_callbackUrl', i) as string;
-
-					if (message) payload.message = message;
-					if (initiator) payload.shareUserAlternativeName = initiator;
-					if (cb) payload.callback_url = cb;
-
-					break;
+				
 				}
 
 				default:
