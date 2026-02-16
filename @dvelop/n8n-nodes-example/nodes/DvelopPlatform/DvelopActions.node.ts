@@ -18,7 +18,7 @@ import type * as n8nWorkflow from 'n8n-workflow';
  *   POST /actions/api/execute/{actionId}
  */
 
-// ✅ These must NOT be commented out, because we use StableOp as a type.
+
 type StableOp =
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT'
 	| 'integrationplatform_integrationplatform_GET_CACHE_URLS'
