@@ -3,17 +3,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 //* eslint-disable @n8n/community-nodes/resource-operation-pattern */
 /**
- * d.velop n8n Intigration
- * 
+ * d.velop n8n Integration
+ *
  * Author: Santino
  * If you read this: you're already debugging
- * 
  */
 
 import type * as n8nWorkflow from 'n8n-workflow';
 
+/**
+ * IMPORTANT:
+ * - Keep "stable" operation values as the actionId (string).
+ * - Call the same execute endpoint dynamically for BOTH stable and volatile:
+ *   POST /actions/api/execute/{actionId}
+ */
 
-
+// ✅ These must NOT be commented out, because we use StableOp as a type.
 type StableOp =
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT'
 	| 'integrationplatform_integrationplatform_GET_CACHE_URLS'
@@ -22,22 +27,6 @@ type StableOp =
 	| 'integrationplatform_inbound_CreateInboundBatch'
 	| 'actionstest_proxyToScripting'
 	| 'integrationplatform_sign_StartSignaturProcess';
-
-const STABLE_OP_URL: Record<StableOp, string> = {
-	integrationplatform_integrationplatform_GET_DOCUMENT:
-		'/actions/api/execute/integrationplatform_integrationplatform_GET_DOCUMENT',
-	integrationplatform_integrationplatform_GET_CACHE_URLS:
-		'/actions/api/execute/integrationplatform_integrationplatform_GET_CACHE_URLS',
-	integrationplatform_integrationplatform_GET_DOCUMENT_INFO:
-		'/actions/api/execute/integrationplatform_integrationplatform_GET_DOCUMENT_INFO',
-	integrationplatform_integrationplatform_GET_USER_INFO:
-		'/actions/api/execute/integrationplatform_integrationplatform_GET_USER_INFO',
-	integrationplatform_inbound_CreateInboundBatch:
-		'/actions/api/execute/integrationplatform_inbound_CreateInboundBatch',
-	actionstest_proxyToScripting: '/actions/api/execute/actionstest_proxyToScripting',
-	integrationplatform_sign_StartSignaturProcess:
-		'/actions/api/execute/integrationplatform_sign_StartSignaturProcess',
-};
 
 function toArrayFromCommaList(value: string): string[] {
 	return value
@@ -55,7 +44,7 @@ async function getFileAsBase64FromBinary(
 
 	// n8n binary data contains base64 in bin.data
 	// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
-	if (!bin?.data) throw new Error(`Binary property "${binaryPropertyName}" hat keine Daten.`);
+	if (!bin?.data) throw new Error(`Binary property "${binaryPropertyName}" has no data.`);
 
 	return {
 		base64: bin.data,
@@ -69,10 +58,9 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 		displayName: 'd.velop Actions',
 		name: 'dvelopActions',
 		icon: { light: 'file:../../icons/dvelop_light.svg', dark: 'file:../../icons/dvelop_dark.svg' },
-		//icon: 'file:dvelop.svg',
 		group: ['input'],
 		version: 1,
-		description: 'Execute d.velop Actions .',
+		description: 'Execute d.velop Actions.',
 		defaults: { name: 'd.velop Actions' },
 		usableAsTool: true,
 		inputs: ['main'],
@@ -83,12 +71,26 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 			headers: { Accept: 'application/json' },
 		},
 		properties: [
-			// Select operation
 			{
-				displayName: 'Operation',
+				displayName: 'Action Mode',
+				name: 'actionMode',
+				type: 'options',
+				options: [
+					{ name: 'Stable Action', value: 'stable' },
+					{ name: 'Volatile Action', value: 'volatile' },
+				],
+				default: 'stable',
+				description: 'Choose between a stable or a volatile action',
+			},
+			{
+				displayName: 'Operation (Stable Action)',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+
+				// ✅ FIX: was "activationMode" (wrong). Must be "actionMode".
+				displayOptions: { show: { actionMode: ['stable'] } },
+
 				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
@@ -135,20 +137,39 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					},
 				],
 				default: 'integrationplatform_integrationplatform_GET_DOCUMENT',
+				placeholder: 'Choose an Action',
+			},
+			{
+				displayName: 'Volatile Action Name or ID',
+				name: 'volatileActionId',
+				type: 'options',
+				displayOptions: { show: { actionMode: ['volatile'] } },
+
+				
+				typeOptions: { loadOptionsMethod: 'getVolatileActions' },
+
+				default: '',
+				placeholder: 'Loading volatile Actions...',
+				description:
+					'Dynamic loaded volatile Actions. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			},
+			{
+				displayName: 'Payload (JSON)',
+				name: 'volatilePayLoad',
+				type: 'json',
+				displayOptions: { show: { actionMode: ['volatile'] } },
+				default: '{}',
+				description: 'JSON Payload for volatile Actions',
 			},
 
-
-			// GET_DOCUMENT
-
+		//Stable Actions
 			{
 				displayName: 'Repository',
 				name: 'getDocument_repoId',
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
 			},
 			{
 				displayName: 'Document ID',
@@ -156,9 +177,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
 			},
 			{
 				displayName: 'Format',
@@ -170,14 +189,10 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					{ name: 'Original', value: 'original' },
 					{ name: 'PDF', value: 'pdf' },
 				],
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
 			},
-			
-			
+
 			// GET_CACHE_URLS (file_binary + TTL)
-			
 			{
 				displayName: 'File Source',
 				name: 'cacheUrls_fileSource',
@@ -187,9 +202,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					{ name: 'From N8n Binary', value: 'binary' },
 					{ name: 'From Base64/String', value: 'string' },
 				],
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] } },
 			},
 			{
 				displayName: 'Input Binary Property',
@@ -208,7 +221,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				name: 'cacheUrls_fileBinaryString',
 				type: 'string',
 				default: '',
-				description: 'Wenn du nicht mit n8n Binary arbeitest: hier Base64 oder String rein',
+				description: 'If you do not use n8n binary: paste Base64 (or data URL) here',
 				displayOptions: {
 					show: {
 						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
@@ -216,7 +229,6 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					},
 				},
 			},
-
 			{
 				displayName: 'Time to Live (TTL)',
 				name: 'cacheUrls_ttl',
@@ -232,16 +244,9 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					{ name: '12 Hours', value: '12h' },
 					{ name: '24 Hours', value: '24h' },
 				],
-				displayOptions: {
-					show: {
-						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
-					},
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] } },
 			},
 
-
-
-		
 			// GET_DOCUMENT_INFO
 			{
 				displayName: 'Repository',
@@ -249,9 +254,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] } },
 			},
 			{
 				displayName: 'Document ID',
@@ -259,9 +262,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] } },
 			},
 
 			// GET_USER_INFO
@@ -271,13 +272,10 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				type: 'string',
 				required: true,
 				default: '',
-				displayOptions: {
-					show: { operation: ['integrationplatform_integrationplatform_GET_USER_INFO'] },
-				},
+				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_USER_INFO'] } },
 			},
 
 			// INBOUND CreateInboundBatch (filename + file_binary + batch_profile)
-			
 			{
 				displayName: 'File Name',
 				name: 'inbound_filename',
@@ -352,8 +350,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 			},
 
 			// StartSignaturProcess (filename + file_binary + sign_level + users + optional)
-			
-      {
+			{
 				displayName: 'File Name',
 				name: 'sign_filename',
 				type: 'string',
@@ -434,90 +431,134 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				default: '',
 				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
 			},
-		] as n8nWorkflow.INodeProperties[],
+		],
+	};
+
+	methods = {
+		loadOptions: {
+			async getVolatileActions(this: n8nWorkflow.ILoadOptionsFunctions) {
+				try {
+					// Use the same auth handling as in execute()
+					const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
+						method: 'GET',
+						url: '={{$credentials.baseUrl}}/actions/api/v1/actions',
+						json: true,
+					});
+
+					const list = Array.isArray(response) ? response : (response?.actions || response?.data || []);
+					return list
+						.filter((a: any) => a?.volatile)
+						.map((a: any) => ({ name: a.display_name || a.id, value: a.id }));
+				} catch (e) {
+					return [];
+				}
+			},
+		},
 	};
 
 	async execute(this: n8nWorkflow.IExecuteFunctions): Promise<n8nWorkflow.INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const results: n8nWorkflow.INodeExecutionData[] = [];
 
-		// Credentials are handled by httpRequestWithAuthentication via dvelopApi
 		const creds = (await this.getCredentials('dvelopApi')) as any;
 		const baseUrl = creds.baseUrl as string;
 
 		for (let i = 0; i < items.length; i++) {
-			const operation = this.getNodeParameter('operation', i) as StableOp;
-			const relativeUrl = STABLE_OP_URL[operation];
-			// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
-			if (!relativeUrl) throw new Error(`Unbekannte Operation: ${operation}`);
+			const actionMode = this.getNodeParameter('actionMode', i) as 'stable' | 'volatile';
 
-			// Payload building
+			// Dynamic actionId for BOTH modes
+			const actionId =
+				actionMode === 'stable'
+					? (this.getNodeParameter('operation', i) as StableOp)
+					: (this.getNodeParameter('volatileActionId', i) as string);
+
+			// Dynamic URL for BOTH modes
+			const url = `${baseUrl}/actions/api/execute/${actionId}`;
+
+			// Payload (built depending on mode)
 			const payload: Record<string, unknown> = {};
+
+			if (actionMode === 'volatile') {
+				// Volatile payload is already an object (type: 'json') -> no JSON.parse needed
+				const volatilePayload = this.getNodeParameter('volatilePayLoad', i) as Record<string, unknown>;
+				Object.assign(payload, volatilePayload);
+
+				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
+					method: 'POST',
+					url,
+					body: payload,
+					json: true,
+				});
+
+				results.push({ json: { actionMode, actionId, response } });
+				continue;
+			}
+
+			
+			// Stable payload building
+			
+			const operation = actionId as StableOp;
 
 			switch (operation) {
 				case 'integrationplatform_integrationplatform_GET_DOCUMENT': {
-			// Payload füllen
-				payload.repo_id = this.getNodeParameter('getDocument_repoId', i);
-				payload.document_id = this.getNodeParameter('getDocument_documentId', i);
-				payload.document_type = this.getNodeParameter('getDocument_documentType', i);
+					payload.repo_id = this.getNodeParameter('getDocument_repoId', i);
+					payload.document_id = this.getNodeParameter('getDocument_documentId', i);
+					payload.document_type = this.getNodeParameter('getDocument_documentType', i);
 
-				const url = `${baseUrl}${relativeUrl}`;
+					const response = (await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
+						method: 'POST',
+						url,
+						body: payload,
+						json: true,
+					})) as unknown as { document?: string; filename?: string };
 
-			// Expected Json
-			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
-				method: 'POST',
-				url,
-				body: payload,
-				json: true,
-	}) as unknown as { document?: string; filename?: string };
+					const docBase64 = response.document;
+					const fileName = response.filename ?? 'document.pdf';
 
-	const docBase64 = response.document;
-	const fileName = response.filename ?? 'document.pdf';
+					if (!docBase64 || typeof docBase64 !== 'string') {
+						results.push({ json: { actionMode, operation, error: 'No "document" field in response', response } });
+						break;
+					}
 
-	if (!docBase64 || typeof docBase64 !== 'string') {
-		results.push({ json: { operation, error: 'No "document" field in response', response } });
-		break;
-	}
+					// Base64 -> Buffer
+					const buffer = Buffer.from(docBase64, 'base64');
 
-	// Base64 -> Buffer
-	const buffer = Buffer.from(docBase64, 'base64');
+					// Optional safety check for PDF
+					if (payload.document_type === 'pdf' && buffer.slice(0, 5).toString('utf8') !== '%PDF-') {
+						results.push({
+							json: {
+								actionMode,
+								operation,
+								error: 'Decoded content is not a PDF (missing %PDF- header)',
+								fileName,
+								firstBytes: buffer.slice(0, 16).toString('hex'),
+							},
+						});
+						break;
+					}
 
-	// Optional Safety-Check
-	
-	if (payload.document_type === 'pdf' && buffer.slice(0, 5).toString('utf8') !== '%PDF-') {
-		results.push({
-			json: {
-				operation,
-				error: 'Decoded content is not a PDF (missing %PDF- header)',
-				fileName,
-				firstBytes: buffer.slice(0, 16).toString('hex'),
-			},
-		});
-		break;
-	}
+				
+					const outputBinaryProperty = 'data';
 
-	const outputBinaryProperty = this.getNodeParameter('getDocument_outputBinaryProperty', i, 'data') as string;
+					const mimeType = payload.document_type === 'pdf' ? 'application/pdf' : 'application/octet-stream';
+					const binaryData = await this.helpers.prepareBinaryData(buffer, fileName, mimeType);
 
-	// mimeType sauber setzen
-	const mimeType = payload.document_type === 'pdf' ? 'application/pdf' : 'application/octet-stream';
+					results.push({
+						json: {
+							actionMode,
+							operation,
+							fileName,
+							mimeType,
+							statusCode: 200,
+						},
+						binary: {
+							[outputBinaryProperty]: binaryData,
+						},
+					});
 
-	// Binary an n8n übergeben
-	const binaryData = await this.helpers.prepareBinaryData(buffer, fileName, mimeType);
+					break;
+				}
 
-	results.push({
-		json: {
-			operation,
-			fileName,
-			mimeType,
-			statusCode: 200,
-		},
-		binary: {
-			[outputBinaryProperty]: binaryData,
-		},
-	});
-
-	break;
-}
 				case 'integrationplatform_integrationplatform_GET_CACHE_URLS': {
 					const fileSource = this.getNodeParameter('cacheUrls_fileSource', i) as 'binary' | 'string';
 
@@ -526,11 +567,8 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 
 					if (fileSource === 'binary') {
 						const binProp = this.getNodeParameter('cacheUrls_inputBinaryProperty', i) as string;
-
-						
 						const buf = await this.helpers.getBinaryDataBuffer(i, binProp);
 
-						
 						const item = items[i];
 						const bin = (item.binary as any)?.[binProp];
 						if (bin?.mimeType) mimeType = bin.mimeType;
@@ -539,25 +577,17 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					} else {
 						base64 = this.getNodeParameter('cacheUrls_fileBinaryString', i) as string;
 						base64 = base64.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
-
-						
-						mimeType = (this.getNodeParameter('cacheUrls_mimeType', i, mimeType) as string) || mimeType;
+					
 					}
 
-			
 					payload.file_binary = {
 						content: base64,
 						'content-type': mimeType,
 					};
 
-					
 					payload.TTL = this.getNodeParameter('cacheUrls_ttl', i);
-
 					break;
-					}
-
-
-				
+				}
 
 				case 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO': {
 					payload.repo_id = this.getNodeParameter('getDocumentInfo_repoId', i);
@@ -575,43 +605,36 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 
 					const fileSource = this.getNodeParameter('inbound_fileSource', i) as 'binary' | 'string';
 
-				if (fileSource === 'binary') {
-					const binProp = this.getNodeParameter('inbound_inputBinaryProperty', i) as string;
+					if (fileSource === 'binary') {
+						const binProp = this.getNodeParameter('inbound_inputBinaryProperty', i) as string;
 
-					let buf: Buffer;
-					try {
-					
-					buf = await this.helpers.getBinaryDataBuffer(i, binProp);
-					} catch (e) {
-					// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
-					throw new Error(
-						`No binary data found in property "${binProp}". Check previous node output (binary.${binProp}).`
-					);
+						let buf: Buffer;
+						try {
+							buf = await this.helpers.getBinaryDataBuffer(i, binProp);
+						} catch (e) {
+							// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
+							throw new Error(
+								`No binary data found in property "${binProp}". Check previous node output (binary.${binProp}).`,
+							);
+						}
+
+						payload.file_binary = buf.toString('base64');
+					} else {
+						let base64 = this.getNodeParameter('inbound_fileBinaryString', i) as string;
+						base64 = base64.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
+						payload.file_binary = base64;
 					}
 
-					
-					payload.file_binary = buf.toString('base64');
-
-				} else {
-					
-					let base64 = this.getNodeParameter('inbound_fileBinaryString', i) as string;
-
-					base64 = base64.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
-
-					payload.file_binary = base64;
+					payload.batch_profile = this.getNodeParameter('inbound_batchProfile', i);
+					break;
 				}
-
-				payload.batch_profile = this.getNodeParameter('inbound_batchProfile', i);
-				break;
-				}
-				
 
 				case 'actionstest_proxyToScripting': {
 					payload.name = this.getNodeParameter('proxy_name', i);
 					payload.endpoint = this.getNodeParameter('proxy_endpoint', i);
 					payload.eventId = this.getNodeParameter('proxy_eventId', i);
 					break;
-				};
+				}
 
 				case 'integrationplatform_sign_StartSignaturProcess': {
 					payload.filename = this.getNodeParameter('sign_filename', i);
@@ -641,13 +664,11 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 
 				default:
 					// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
-					throw new Error(`Operation nicht implementiert: ${operation}`);
+					throw new Error(`Operation not implemented: ${operation}`);
 			}
 
-			// Für Download haben wir oben schon returned/pushed
+			
 			if (operation === 'integrationplatform_integrationplatform_GET_DOCUMENT') continue;
-
-			const url = `${baseUrl}${relativeUrl}`;
 
 			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
 				method: 'POST',
@@ -656,7 +677,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				json: true,
 			});
 
-			results.push({ json: { operation, response } });
+			results.push({ json: { actionMode, actionId, response } });
 		}
 
 		return [results];
