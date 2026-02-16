@@ -1,16 +1,18 @@
-import {
+import type {
 	IAuthenticateGeneric,
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
+	Icon,
 } from 'n8n-workflow';
 
 export class DvelopApi implements ICredentialType {
 	name = 'dvelopApi';
-
 	displayName = 'd.velop API';
-
 	documentationUrl = 'https://help.d-velop.de/dev/documentation/identityprovider';
+
+//	icon: Icon = 'file:dvelop.svg';
+	icon: Icon = { light: 'file:../icons/dvelop_light.svg', dark: 'file:../icons/dvelop_dark.svg' };
 
 	properties: INodeProperties[] = [
 		{
@@ -19,7 +21,7 @@ export class DvelopApi implements ICredentialType {
 			type: 'string',
 			default: 'https://my-tenant.d-velop.cloud',
 			placeholder: 'https://my-tenant.d-velop.cloud',
-			description: 'The base URL of your d.velop cloud instance',
+			description: 'The base URL of your d.velop cloud instance.',
 			required: true,
 		},
 		{
@@ -27,14 +29,7 @@ export class DvelopApi implements ICredentialType {
 			name: 'authMethod',
 			type: 'options',
 			options: [
-				{
-					name: 'Bearer Token',
-					value: 'bearerToken',
-				},
-				{
-					name: 'Cookie Auth',
-					value: 'cookieAuth',
-				},
+				{ name: 'Bearer Token', value: 'bearerToken' },
 			],
 			default: 'bearerToken',
 			description: 'Method to use for authentication',
@@ -45,46 +40,32 @@ export class DvelopApi implements ICredentialType {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			description: 'Bearer token obtained from d.velop app session',
+			description: 'Bearer token obtained from d.velop API-key section',
 			displayOptions: {
-				show: {
-					authMethod: ['bearerToken'],
-				},
-			},
-		},
-		{
-			displayName: 'Cookie Auth Session ID',
-			name: 'cookieAuth',
-			type: 'string',
-			typeOptions: { password: true },
-			default: '',
-			description: 'AuthSessionId from user context',
-			displayOptions: {
-				show: {
-					authMethod: ['cookieAuth'],
-				},
+				show: { authMethod: ['bearerToken'] },
 			},
 		},
 	];
+
 
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '=Bearer {{$credentials.bearerToken}}',
-				Cookie: '=AuthSessionId={{$credentials.cookieAuth}}',
+				Authorization:
+					'={{ $credentials.authMethod === "bearerToken" && $credentials.bearerToken ? "Bearer " + $credentials.bearerToken : undefined }}',
+				Cookie:
+					'={{ $credentials.authMethod === "cookieAuth" && $credentials.cookieAuth ? "AuthSessionId=" + $credentials.cookieAuth : undefined }}',
 			},
 		},
 	};
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl}}/actions',
-			url: '/api/v1/actions',
+			baseURL: '={{$credentials.baseUrl}}',
+			url: '/actions/api/v1/actions',
 			method: 'GET',
-			qs: {
-				limit: 1,
-			},
+			qs: { limit: 1 },
 		},
 	};
 }

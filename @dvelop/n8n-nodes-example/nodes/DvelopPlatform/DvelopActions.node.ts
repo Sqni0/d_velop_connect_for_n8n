@@ -1,429 +1,664 @@
-// d.velop Actions Node - Führt d.velop Actions aus
-import {
-	INodeType,
-	INodeTypeDescription,
-	ILoadOptionsFunctions,
-	IExecuteFunctions,
-	INodeExecutionData
-} from 'n8n-workflow';
+/* eslint-disable n8n-nodes-base/node-dirname-against-convention */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+//* eslint-disable @n8n/community-nodes/resource-operation-pattern */
+/**
+ * d.velop n8n Intigration
+ * 
+ * Author: Santino
+ * If you read this: you're already debugging
+ * 
+ */
 
-export class DvelopActions implements INodeType {
-	description: INodeTypeDescription = {
+import type * as n8nWorkflow from 'n8n-workflow';
+
+
+
+type StableOp =
+	| 'integrationplatform_integrationplatform_GET_DOCUMENT'
+	| 'integrationplatform_integrationplatform_GET_CACHE_URLS'
+	| 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO'
+	| 'integrationplatform_integrationplatform_GET_USER_INFO'
+	| 'integrationplatform_inbound_CreateInboundBatch'
+	| 'actionstest_proxyToScripting'
+	| 'integrationplatform_sign_StartSignaturProcess';
+
+const STABLE_OP_URL: Record<StableOp, string> = {
+	integrationplatform_integrationplatform_GET_DOCUMENT:
+		'/actions/api/execute/integrationplatform_integrationplatform_GET_DOCUMENT',
+	integrationplatform_integrationplatform_GET_CACHE_URLS:
+		'/actions/api/execute/integrationplatform_integrationplatform_GET_CACHE_URLS',
+	integrationplatform_integrationplatform_GET_DOCUMENT_INFO:
+		'/actions/api/execute/integrationplatform_integrationplatform_GET_DOCUMENT_INFO',
+	integrationplatform_integrationplatform_GET_USER_INFO:
+		'/actions/api/execute/integrationplatform_integrationplatform_GET_USER_INFO',
+	integrationplatform_inbound_CreateInboundBatch:
+		'/actions/api/execute/integrationplatform_inbound_CreateInboundBatch',
+	actionstest_proxyToScripting: '/actions/api/execute/actionstest_proxyToScripting',
+	integrationplatform_sign_StartSignaturProcess:
+		'/actions/api/execute/integrationplatform_sign_StartSignaturProcess',
+};
+
+function toArrayFromCommaList(value: string): string[] {
+	return value
+		.split(',')
+		.map((i) => i.trim())
+		.filter(Boolean);
+}
+
+async function getFileAsBase64FromBinary(
+	this: n8nWorkflow.IExecuteFunctions,
+	itemIndex: number,
+	binaryPropertyName: string,
+): Promise<{ base64: string; fileName?: string; mimeType?: string }> {
+	const bin = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
+
+	// n8n binary data contains base64 in bin.data
+	// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
+	if (!bin?.data) throw new Error(`Binary property "${binaryPropertyName}" hat keine Daten.`);
+
+	return {
+		base64: bin.data,
+		fileName: bin.fileName,
+		mimeType: bin.mimeType,
+	};
+}
+
+export class DvelopActions implements n8nWorkflow.INodeType {
+	description: n8nWorkflow.INodeTypeDescription = {
 		displayName: 'd.velop Actions',
 		name: 'dvelopActions',
-		icon: 'file:dvelop.svg',
+		icon: { light: 'file:../../icons/dvelop_light.svg', dark: 'file:../../icons/dvelop_dark.svg' },
+		//icon: 'file:dvelop.svg',
 		group: ['input'],
 		version: 1,
-		subtitle: '={{$parameter["actionMode"] === "stable" ? $parameter["operation"] : $parameter["volatileActionId"]}}',
-		description: 'Führe d.velop Actions aus',
-		defaults: { name: 'd.velop Action' },
+		description: 'Execute d.velop Actions .',
+		defaults: { name: 'd.velop Actions' },
 		usableAsTool: true,
 		inputs: ['main'],
 		outputs: ['main'],
-		credentials: [
-			{ name: 'dvelopApi', required: true },
-		],
+		credentials: [{ name: 'dvelopApi', required: true }],
 		requestDefaults: {
 			baseURL: '={{$credentials.baseUrl}}',
-			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+			headers: { Accept: 'application/json' },
 		},
 		properties: [
+			// Select operation
 			{
-				displayName: 'Action Mode',
-				name: 'actionMode',
-				type: 'options',
-				options: [
-					{ name: 'Stable Action', value: 'stable' },
-					{ name: 'Volatile Action', value: 'volatile' },
-				],
-				default: 'stable',
-				description: 'Wähle ob eine generierte (stabile) oder dynamisch geladene (volatile) Action ausgeführt wird.'
-			},
-			{
-				displayName: 'Operation (Stable Action)',
+				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				displayOptions: { show: { actionMode: ['stable'] } },
+				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
-					// <DVELOP-STABLE-OPS-START>
-				// Generiert am 2025-09-17T09:45:35.146Z (stable Actions: 7)
-				{
-          name: 'Download document',
-          value: 'integrationplatform_integrationplatform_GET_DOCUMENT',
-          description: 'Downloads the document to the specified document ID',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/integrationplatform_integrationplatform_GET_DOCUMENT' } },
-        },
-				{
-          name: 'Generate URL for a temporary file upload',
-          value: 'integrationplatform_integrationplatform_GET_CACHE_URLS',
-          description: 'Generates a URL that can be used for a temporary file upload',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/integrationplatform_integrationplatform_GET_CACHE_URLS' } },
-        },
-				{
-          name: 'Get document info',
-          value: 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO',
-          description: 'Gets information of a document for the specified document ID',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/integrationplatform_integrationplatform_GET_DOCUMENT_INFO' } },
-        },
-				{
-          name: 'Get user info',
-          value: 'integrationplatform_integrationplatform_GET_USER_INFO',
-          description: 'Gets information about the specified user ID',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/integrationplatform_integrationplatform_GET_USER_INFO' } },
-        },
-				{
-          name: 'Import document (d.velop inbound)',
-          value: 'integrationplatform_inbound_CreateInboundBatch',
-          description: 'Imports a document via d.velop inbound',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/integrationplatform_inbound_CreateInboundBatch' } },
-        },
-				{
-          name: 'proxyToScripting',
-          value: 'actionstest_proxyToScripting',
-          description: 'proxy',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/actionstest_proxyToScripting' } },
-        },
-				{
-          name: 'Start signature process',
-          value: 'integrationplatform_sign_StartSignaturProcess',
-          description: 'Starts a signature process',
-          routing: { request: { method: 'POST', url: '/actions/api/execute/integrationplatform_sign_StartSignaturProcess' } },
-        }
-				// <DVELOP-STABLE-OPS-END>
+					{
+						name: 'Download Document',
+						value: 'integrationplatform_integrationplatform_GET_DOCUMENT',
+						description: 'Downloads the specific document',
+						action: 'Downloads the document to the specified document ID',
+					},
+					{
+						name: 'Temporary File Upload',
+						value: 'integrationplatform_integrationplatform_GET_CACHE_URLS',
+						description: 'Generates a URL that can be used for a temporary file upload',
+						action: 'Generates a URL that can be used for a temporary file upload',
+					},
+					{
+						name: 'Get Document Info',
+						value: 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO',
+						description: 'Gets information of a document for the specified document ID',
+						action: 'Gets information of a document for the specified document ID',
+					},
+					{
+						name: 'Get User Info',
+						value: 'integrationplatform_integrationplatform_GET_USER_INFO',
+						description: 'Gets information about the specified user ID',
+						action: 'Gets information about the specified user ID',
+					},
+					{
+						name: 'Import Document (d.velop Inbound)',
+						value: 'integrationplatform_inbound_CreateInboundBatch',
+						description: 'Imports a document via d.velop inbound',
+						action: 'Imports a document via d velop inbound',
+					},
+					{
+						name: 'proxyToScripting',
+						value: 'actionstest_proxyToScripting',
+						description: 'Proxy',
+						action: 'Proxy',
+					},
+					{
+						name: 'Start Signature Process',
+						value: 'integrationplatform_sign_StartSignaturProcess',
+						description: 'Starts a signature process',
+						action: 'Starts a signature process',
+					},
 				],
+				default: 'integrationplatform_integrationplatform_GET_DOCUMENT',
+			},
+
+
+			// GET_DOCUMENT
+
+			{
+				displayName: 'Repository',
+				name: 'getDocument_repoId',
+				type: 'string',
+				required: true,
 				default: '',
-				placeholder: 'Wähle Action',
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] },
+				},
 			},
 			{
-				displayName: 'Volatile Action',
-				name: 'volatileActionId',
+				displayName: 'Document ID',
+				name: 'getDocument_documentId',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] },
+				},
+			},
+			{
+				displayName: 'Format',
+				name: 'getDocument_documentType',
 				type: 'options',
-				displayOptions: { show: { actionMode: ['volatile'] } },
-				typeOptions: { loadOptionsMethod: 'getVolatileActions' },
+				required: true,
+				default: 'original',
+				options: [
+					{ name: 'Original', value: 'original' },
+					{ name: 'PDF', value: 'pdf' },
+				],
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] },
+				},
+			},
+			
+			
+			// GET_CACHE_URLS (file_binary + TTL)
+			
+			{
+				displayName: 'File Source',
+				name: 'cacheUrls_fileSource',
+				type: 'options',
+				default: 'binary',
+				options: [
+					{ name: 'From N8n Binary', value: 'binary' },
+					{ name: 'From Base64/String', value: 'string' },
+				],
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] },
+				},
+			},
+			{
+				displayName: 'Input Binary Property',
+				name: 'cacheUrls_inputBinaryProperty',
+				type: 'string',
+				default: 'data',
+				displayOptions: {
+					show: {
+						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
+						cacheUrls_fileSource: ['binary'],
+					},
+				},
+			},
+			{
+				displayName: 'File (Base64/String)',
+				name: 'cacheUrls_fileBinaryString',
+				type: 'string',
 				default: '',
-				placeholder: 'Lade volatile Actions...',
-				description: 'Dynamisch geladene volatile Action (Beschreibung zeigt Schema-Tooltip).',
+				description: 'Wenn du nicht mit n8n Binary arbeitest: hier Base64 oder String rein',
+				displayOptions: {
+					show: {
+						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
+						cacheUrls_fileSource: ['string'],
+					},
+				},
+			},
+
+			{
+				displayName: 'Time to Live (TTL)',
+				name: 'cacheUrls_ttl',
+				type: 'options',
+				default: '15m',
+				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+				options: [
+					{ name: '30 Seconds', value: '30s' },
+					{ name: '5 Minutes', value: '5m' },
+					{ name: '15 Minutes', value: '15m' },
+					{ name: '30 Minutes', value: '30m' },
+					{ name: '1 Hour', value: '1h' },
+					{ name: '12 Hours', value: '12h' },
+					{ name: '24 Hours', value: '24h' },
+				],
+				displayOptions: {
+					show: {
+						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
+					},
+				},
+			},
+
+
+
+		
+			// GET_DOCUMENT_INFO
+			{
+				displayName: 'Repository',
+				name: 'getDocumentInfo_repoId',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] },
+				},
 			},
 			{
-				displayName: 'Payload (JSON)',
-				name: 'volatilePayload',
-				type: 'json',
-				displayOptions: { show: { actionMode: ['volatile'] } },
-				default: '{}',
-				description: 'JSON Payload für die volatile Action. Beispiel: {"name": "test", "count": 123}',
+				displayName: 'Document ID',
+				name: 'getDocumentInfo_documentId',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] },
+				},
 			},
-			// Stabile Action Input-Felder (Generator injiziert unterhalb)
-			// <DVELOP-STABLE-FIELDS-START>
-			// Generiert am 2025-09-17T09:45:35.147Z (stable Action Fields)
+
+			// GET_USER_INFO
 			{
-        displayName: 'Repository',
-        name: 'repo_id',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'd.velop documents repository',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
-        routing: { request: { body: { 'repo_id': '={{$value}}' } } }
-      },
+				displayName: 'User ID',
+				name: 'getUserInfo_userId',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: {
+					show: { operation: ['integrationplatform_integrationplatform_GET_USER_INFO'] },
+				},
+			},
+
+			// INBOUND CreateInboundBatch (filename + file_binary + batch_profile)
+			
 			{
-        displayName: 'Document ID',
-        name: 'document_id',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'ID of the document',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
-        routing: { request: { body: { 'document_id': '={{$value}}' } } }
-      },
+				displayName: 'File Name',
+				name: 'inbound_filename',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: { show: { operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
+			},
 			{
-        displayName: 'Format',
-        name: 'document_type',
-        type: 'options',
-        required: true,
-        default: 'original',
-        description: 'Which format should the downloaded document have?',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'] } },
-        routing: { request: { body: { 'document_type': '={{$value}}' } } },
-        options: [
-            { name: 'Original', value: 'original' },
-            { name: 'PDF', value: 'pdf' }
-        ]
-      },
+				displayName: 'File Source',
+				name: 'inbound_fileSource',
+				type: 'options',
+				default: 'binary',
+				options: [
+					{ name: 'From N8n Binary', value: 'binary' },
+					{ name: 'From Base64/String', value: 'string' },
+				],
+				displayOptions: { show: { operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
+			},
 			{
-        displayName: 'File',
-        name: 'file_binary',
-        type: 'string',
-        
-        default: '',
-        description: 'Content of the file to be cached',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] } },
-        routing: { request: { body: { 'file_binary': '={{$value}}' } } }
-      },
+				displayName: 'Input Binary Property',
+				name: 'inbound_inputBinaryProperty',
+				type: 'string',
+				default: 'data',
+				displayOptions: {
+					show: { operation: ['integrationplatform_inbound_CreateInboundBatch'], inbound_fileSource: ['binary'] },
+				},
+			},
 			{
-        displayName: 'Time to live (TTL)',
-        name: 'TTL',
-        type: 'options',
-        
-        default: '15m',
-        description: 'Duration until removal from cache',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] } },
-        routing: { request: { body: { 'TTL': '={{$value}}' } } },
-        options: [
-            { name: '20 seconds', value: '30s' },
-            { name: '5 minutes', value: '5m' },
-            { name: '15 minutes', value: '15m' },
-            { name: '30 minutes', value: '30m' },
-            { name: '1 hour', value: '1h' },
-            { name: '12 hours', value: '12h' },
-            { name: '24 hours', value: '24h' }
-        ]
-      },
+				displayName: 'File (Base64/String)',
+				name: 'inbound_fileBinaryString',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: {
+					show: { operation: ['integrationplatform_inbound_CreateInboundBatch'], inbound_fileSource: ['string'] },
+				},
+			},
 			{
-        displayName: 'Repository',
-        name: 'repo_id',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'd.velop documents repository',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] } },
-        routing: { request: { body: { 'repo_id': '={{$value}}' } } }
-      },
+				displayName: 'Import Profile',
+				name: 'inbound_batchProfile',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: { show: { operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
+			},
+
+			// proxyToScripting
 			{
-        displayName: 'Document ID',
-        name: 'document_id',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'ID of the document',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_DOCUMENT_INFO'] } },
-        routing: { request: { body: { 'document_id': '={{$value}}' } } }
-      },
+				displayName: 'Name',
+				name: 'proxy_name',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: { show: { operation: ['actionstest_proxyToScripting'] } },
+			},
 			{
-        displayName: 'ID of the user',
-        name: 'user_id',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'ID of a d.velop cloud user',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_integrationplatform_GET_USER_INFO'] } },
-        routing: { request: { body: { 'user_id': '={{$value}}' } } }
-      },
+				displayName: 'Endpoint',
+				name: 'proxy_endpoint',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: { show: { operation: ['actionstest_proxyToScripting'] } },
+			},
 			{
-        displayName: 'File name',
-        name: 'filename',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'Name of the file to import.',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
-        routing: { request: { body: { 'filename': '={{$value}}' } } }
-      },
+				displayName: 'eventId',
+				name: 'proxy_eventId',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: { show: { operation: ['actionstest_proxyToScripting'] } },
+			},
+
+			// StartSignaturProcess (filename + file_binary + sign_level + users + optional)
+			
+      {
+				displayName: 'File Name',
+				name: 'sign_filename',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
 			{
-        displayName: 'File',
-        name: 'file_binary',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'Binary files for the file to be imported',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
-        routing: { request: { body: { 'file_binary': '={{$value}}' } } }
-      },
+				displayName: 'File Source',
+				name: 'sign_fileSource',
+				type: 'options',
+				default: 'binary',
+				options: [
+					{ name: 'From N8n Binary', value: 'binary' },
+					{ name: 'From Base64/String', value: 'string' },
+				],
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
 			{
-        displayName: 'Import profile',
-        name: 'batch_profile',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'Import profile for the storage of documents',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_inbound_CreateInboundBatch'] } },
-        routing: { request: { body: { 'batch_profile': '={{$value}}' } } }
-      },
+				displayName: 'Input Binary Property',
+				name: 'sign_inputBinaryProperty',
+				type: 'string',
+				default: 'data',
+				displayOptions: {
+					show: { operation: ['integrationplatform_sign_StartSignaturProcess'], sign_fileSource: ['binary'] },
+				},
+			},
 			{
-        displayName: 'name',
-        name: 'name',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'name',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['actionstest_proxyToScripting'] } },
-        routing: { request: { body: { 'name': '={{$value}}' } } }
-      },
+				displayName: 'File (Base64/String)',
+				name: 'sign_fileBinaryString',
+				type: 'string',
+				required: true,
+				default: '',
+				displayOptions: {
+					show: { operation: ['integrationplatform_sign_StartSignaturProcess'], sign_fileSource: ['string'] },
+				},
+			},
 			{
-        displayName: 'endpoint',
-        name: 'endpoint',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'endpoint',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['actionstest_proxyToScripting'] } },
-        routing: { request: { body: { 'endpoint': '={{$value}}' } } }
-      },
+				displayName: 'Sign Level',
+				name: 'sign_level',
+				type: 'options',
+				required: true,
+				default: 'advanced',
+				options: [
+					{ name: 'Basic', value: 'basic' },
+					{ name: 'Advanced', value: 'advanced' },
+					{ name: 'Qualified', value: 'qualified' },
+				],
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
 			{
-        displayName: 'eventId',
-        name: 'eventId',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'eventId',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['actionstest_proxyToScripting'] } },
-        routing: { request: { body: { 'eventId': '={{$value}}' } } }
-      },
+				displayName: 'Recipient (Comma Separated)',
+				name: 'sign_usersCsv',
+				type: 'string',
+				required: true,
+				default: '',
+				description: 'E-mail address or user ID of the recipient (comma-separated)',
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
 			{
-        displayName: 'File name',
-        name: 'filename',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'Name of the file to be signed',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'filename': '={{$value}}' } } }
-      },
+				displayName: 'Message',
+				name: 'sign_message',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
 			{
-        displayName: 'File',
-        name: 'file_binary',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'Binaries of the file to be signed',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'file_binary': '={{$value}}' } } }
-      },
+				displayName: 'Initiator Name',
+				name: 'sign_shareUserAlternativeName',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
 			{
-        displayName: 'Sign level',
-        name: 'sign_level',
-        type: 'options',
-        required: true,
-        default: 'advanced',
-        description: 'Level of the signature',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'sign_level': '={{$value}}' } } },
-        options: [
-            { name: 'Basic', value: 'basic' },
-            { name: 'Advanced', value: 'advanced' },
-            { name: 'USER_SIGN_LEVEL_OPTION_QUALIFIED', value: 'qualified' }
-        ]
-      },
-			{
-        displayName: 'Recipient',
-        name: 'users',
-        type: 'string',
-        required: true,
-        default: '',
-        description: 'E-mail address or user ID of the recipient',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'users': '={{ $value.split(",").map(i=>i.trim()).filter(Boolean) }}' } } }
-      },
-			{
-        displayName: 'Message',
-        name: 'message',
-        type: 'string',
-        
-        default: '',
-        description: 'Message to the signers',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'message': '={{$value}}' } } }
-      },
-			{
-        displayName: 'Initiator name',
-        name: 'shareUserAlternativeName',
-        type: 'string',
-        
-        default: '',
-        description: 'Override for the initiator name. (Advanced)',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'shareUserAlternativeName': '={{$value}}' } } }
-      },
-			{
-        displayName: 'Callback URL',
-        name: 'callback_url',
-        type: 'string',
-        
-        default: '',
-        description: 'Callback URL for event handling (Advanced)',
-        displayOptions: { show: { actionMode: ['stable'], operation: ['integrationplatform_sign_StartSignaturProcess'] } },
-        routing: { request: { body: { 'callback_url': '={{$value}}' } } }
-      }
-			// <DVELOP-STABLE-FIELDS-END>
-		],
+				displayName: 'Callback URL',
+				name: 'sign_callbackUrl',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { operation: ['integrationplatform_sign_StartSignaturProcess'] } },
+			},
+		] as n8nWorkflow.INodeProperties[],
 	};
 
-	methods = {
-		loadOptions: {
-			async getVolatileActions(this: ILoadOptionsFunctions) {
-				try {
-					const creds = await this.getCredentials('dvelopApi') as any;
-					const baseUrl = creds.baseUrl as string;
-					const headers: Record<string,string> = { Accept: 'application/json' };
-					if (creds.bearerToken) headers.Authorization = `Bearer ${creds.bearerToken}`;
-					if (creds.cookieAuth) headers.Cookie = `AuthSessionId=${creds.cookieAuth}`;
-					const response = await this.helpers.httpRequest({
-						method: 'GET',
-						url: `${baseUrl}/actions/api/v1/actions`,
-						headers,
-					});
-					const list = Array.isArray(response) ? response : (response?.actions || response?.data || []);
-					return list.filter((a: any) => a?.volatile).map((a: any) => ({ name: a.display_name || a.id, value: a.id }));
-				} catch (e) {
-					return [];
-				}
-			},
-		},
-	};
-
-	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+	async execute(this: n8nWorkflow.IExecuteFunctions): Promise<n8nWorkflow.INodeExecutionData[][]> {
 		const items = this.getInputData();
-		const actionMode = this.getNodeParameter('actionMode', 0) as string;
+		const results: n8nWorkflow.INodeExecutionData[] = [];
 
-		if (actionMode === 'stable') {
-			// Für stabile Actions wird der Request automatisch von n8n basierend auf der routing-Konfiguration ausgeführt
-			return [items];
-		} else {
-			// Für volatile Actions nutzen wir auch n8n's HTTP Request Helper, aber mit dynamischer URL
-			const results: INodeExecutionData[] = [];
+		// Credentials are handled by httpRequestWithAuthentication via dvelopApi
+		const creds = (await this.getCredentials('dvelopApi')) as any;
+		const baseUrl = creds.baseUrl as string;
 
-			// Verarbeite alle Input-Items
-			for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-				const volatileActionId = this.getNodeParameter('volatileActionId', itemIndex) as string;
-				const volatilePayload = this.getNodeParameter('volatilePayload', itemIndex) as any;
+		for (let i = 0; i < items.length; i++) {
+			const operation = this.getNodeParameter('operation', i) as StableOp;
+			const relativeUrl = STABLE_OP_URL[operation];
+			// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
+			if (!relativeUrl) throw new Error(`Unbekannte Operation: ${operation}`);
 
-				// Payload zusammenstellen aus den Feldern
-				const payload: any = {};
+			// Payload building
+			const payload: Record<string, unknown> = {};
 
-				// Direktes JSON Parsing für das textarea-Feld
-				try {
-					Object.assign(payload, JSON.parse(volatilePayload));
-				} catch (error) {
-					throw new Error("Fehler beim Parsen des JSON-Payloads: " + (error as Error).message);
+			switch (operation) {
+				case 'integrationplatform_integrationplatform_GET_DOCUMENT': {
+			// Payload füllen
+				payload.repo_id = this.getNodeParameter('getDocument_repoId', i);
+				payload.document_id = this.getNodeParameter('getDocument_documentId', i);
+				payload.document_type = this.getNodeParameter('getDocument_documentType', i);
+
+				const url = `${baseUrl}${relativeUrl}`;
+
+			// Expected Json
+			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
+				method: 'POST',
+				url,
+				body: payload,
+				json: true,
+	}) as unknown as { document?: string; filename?: string };
+
+	const docBase64 = response.document;
+	const fileName = response.filename ?? 'document.pdf';
+
+	if (!docBase64 || typeof docBase64 !== 'string') {
+		results.push({ json: { operation, error: 'No "document" field in response', response } });
+		break;
+	}
+
+	// Base64 -> Buffer
+	const buffer = Buffer.from(docBase64, 'base64');
+
+	// Optional Safety-Check
+	
+	if (payload.document_type === 'pdf' && buffer.slice(0, 5).toString('utf8') !== '%PDF-') {
+		results.push({
+			json: {
+				operation,
+				error: 'Decoded content is not a PDF (missing %PDF- header)',
+				fileName,
+				firstBytes: buffer.slice(0, 16).toString('hex'),
+			},
+		});
+		break;
+	}
+
+	const outputBinaryProperty = this.getNodeParameter('getDocument_outputBinaryProperty', i, 'data') as string;
+
+	// mimeType sauber setzen
+	const mimeType = payload.document_type === 'pdf' ? 'application/pdf' : 'application/octet-stream';
+
+	// Binary an n8n übergeben
+	const binaryData = await this.helpers.prepareBinaryData(buffer, fileName, mimeType);
+
+	results.push({
+		json: {
+			operation,
+			fileName,
+			mimeType,
+			statusCode: 200,
+		},
+		binary: {
+			[outputBinaryProperty]: binaryData,
+		},
+	});
+
+	break;
+}
+				case 'integrationplatform_integrationplatform_GET_CACHE_URLS': {
+					const fileSource = this.getNodeParameter('cacheUrls_fileSource', i) as 'binary' | 'string';
+
+					let base64: string;
+					let mimeType = 'application/octet-stream';
+
+					if (fileSource === 'binary') {
+						const binProp = this.getNodeParameter('cacheUrls_inputBinaryProperty', i) as string;
+
+						
+						const buf = await this.helpers.getBinaryDataBuffer(i, binProp);
+
+						
+						const item = items[i];
+						const bin = (item.binary as any)?.[binProp];
+						if (bin?.mimeType) mimeType = bin.mimeType;
+
+						base64 = buf.toString('base64');
+					} else {
+						base64 = this.getNodeParameter('cacheUrls_fileBinaryString', i) as string;
+						base64 = base64.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
+
+						
+						mimeType = (this.getNodeParameter('cacheUrls_mimeType', i, mimeType) as string) || mimeType;
+					}
+
+			
+					payload.file_binary = {
+						content: base64,
+						'content-type': mimeType,
+					};
+
+					
+					payload.TTL = this.getNodeParameter('cacheUrls_ttl', i);
+
+					break;
+					}
+
+
+				
+
+				case 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO': {
+					payload.repo_id = this.getNodeParameter('getDocumentInfo_repoId', i);
+					payload.document_id = this.getNodeParameter('getDocumentInfo_documentId', i);
+					break;
 				}
 
-				// Hole die baseURL aus den Credentials für die vollständige URL
-				const credentials = await this.getCredentials('dvelopApi');
-				const baseUrl = credentials.baseUrl as string;
-				const fullUrl = `${baseUrl}/actions/api/execute/${volatileActionId}`;
+				case 'integrationplatform_integrationplatform_GET_USER_INFO': {
+					payload.user_id = this.getNodeParameter('getUserInfo_userId', i);
+					break;
+				}
 
-				// Debug logging - entferne das nach dem Test
-				console.log('Volatile Action Debug:', {
-					volatileActionId,
-					payload,
-					fullUrl,
-					volatilePayload,
-					parameterCount: Object.keys(volatilePayload || {}).length
-				});
+				case 'integrationplatform_inbound_CreateInboundBatch': {
+					payload.filename = this.getNodeParameter('inbound_filename', i);
 
-				// Nutze n8n's httpRequestWithAuthentication für konsistente Authentifizierung
-				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
-					method: 'POST',
-					url: fullUrl,
-					body: payload,
-					json: true,
-				});
+					const fileSource = this.getNodeParameter('inbound_fileSource', i) as 'binary' | 'string';
 
-				// Füge Antwort zu den Ergebnissen hinzu
-				results.push({ json: response });
+				if (fileSource === 'binary') {
+					const binProp = this.getNodeParameter('inbound_inputBinaryProperty', i) as string;
+
+					let buf: Buffer;
+					try {
+					
+					buf = await this.helpers.getBinaryDataBuffer(i, binProp);
+					} catch (e) {
+					// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
+					throw new Error(
+						`No binary data found in property "${binProp}". Check previous node output (binary.${binProp}).`
+					);
+					}
+
+					
+					payload.file_binary = buf.toString('base64');
+
+				} else {
+					
+					let base64 = this.getNodeParameter('inbound_fileBinaryString', i) as string;
+
+					base64 = base64.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
+
+					payload.file_binary = base64;
+				}
+
+				payload.batch_profile = this.getNodeParameter('inbound_batchProfile', i);
+				break;
+				}
+				
+
+				case 'actionstest_proxyToScripting': {
+					payload.name = this.getNodeParameter('proxy_name', i);
+					payload.endpoint = this.getNodeParameter('proxy_endpoint', i);
+					payload.eventId = this.getNodeParameter('proxy_eventId', i);
+					break;
+				};
+
+				case 'integrationplatform_sign_StartSignaturProcess': {
+					payload.filename = this.getNodeParameter('sign_filename', i);
+
+					const fileSource = this.getNodeParameter('sign_fileSource', i) as 'binary' | 'string';
+					if (fileSource === 'binary') {
+						const binProp = this.getNodeParameter('sign_inputBinaryProperty', i) as string;
+						const { base64 } = await getFileAsBase64FromBinary.call(this, i, binProp);
+						payload.file_binary = base64;
+					} else {
+						payload.file_binary = this.getNodeParameter('sign_fileBinaryString', i);
+					}
+
+					payload.sign_level = this.getNodeParameter('sign_level', i);
+					payload.users = toArrayFromCommaList(this.getNodeParameter('sign_usersCsv', i) as string);
+
+					const message = this.getNodeParameter('sign_message', i) as string;
+					const initiator = this.getNodeParameter('sign_shareUserAlternativeName', i) as string;
+					const cb = this.getNodeParameter('sign_callbackUrl', i) as string;
+
+					if (message) payload.message = message;
+					if (initiator) payload.shareUserAlternativeName = initiator;
+					if (cb) payload.callback_url = cb;
+
+					break;
+				}
+
+				default:
+					// eslint-disable-next-line n8n-nodes-base/node-execute-block-wrong-error-thrown
+					throw new Error(`Operation nicht implementiert: ${operation}`);
 			}
 
-			return [results];
+			// Für Download haben wir oben schon returned/pushed
+			if (operation === 'integrationplatform_integrationplatform_GET_DOCUMENT') continue;
+
+			const url = `${baseUrl}${relativeUrl}`;
+
+			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
+				method: 'POST',
+				url,
+				body: payload,
+				json: true,
+			});
+
+			results.push({ json: { operation, response } });
 		}
+
+		return [results];
 	}
 }

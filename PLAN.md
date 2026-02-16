@@ -1,19 +1,15 @@
-# Integrationsplan: d.velop Plattform in n8n
+Integrationsplan: d.velop Plattform in n8n
 
 ## Zielsetzung
 - Automatisierte Workflows zwischen d.velop und anderen Systemen via n8n.
 - Entwicklung von nachhaltigen Community-Nodes für n8n.
 - Sicherstellung von Verifizierung und Sicherheit.
-- Automatische Konvertierung von d.velop Actions/Events zu n8n Node-Format.
-
 ---
 
 ## 1. Analyse & Architektur
 
 ### 1.1 d.velop Actions App Analyse
 - **Zentrale Datenbus-Architektur:** Actions App als Hub für alle Platform-Events
-- **REST API:** Query-Interface für Actions und Events
-- **Auto-Discovery:** Automatische Node-Generierung basierend auf verfügbaren Actions/Events
 - **Authentifizierung:** OAuth2, API Keys über d.velop Identity Provider
 
 ### 1.2 API-zu-Node Konvertierung
@@ -24,27 +20,14 @@
 
 ### 1.3 Entwicklungsumgebung
 - **Lokale n8n Instanz:** Docker Container für schnelle Iteration
-- **Hot-Reload:** Automatisches Neuladen von Custom Nodes
 - **Debug-Setup:** Logging und Debugging für Node-Entwicklung
 
-### 1.4 Zielarchitektur
-- **Phase 1:** API-Discovery Tool + Custom Nodes (lokal, Docker)
-- **Phase 2:** Node-Generator + Template-System
-- **Phase 3:** Community Nodes (Open Source, Auto-Updates)
-
----
 
 ## 2. Node-Konzept für n8n
 
-### 2.1 Generierte Nodes
-- **Dynamic Action Nodes:** Auto-generiert aus Actions App API
-- **Dynamic Trigger Nodes:** Auto-generiert aus Events API
-- **Meta-Node:** d.velop Platform Connection & Auth Management
-
-### 2.2 Statische Base Nodes
+### 2.1 Statische Base Nodes
 - **d.velop Auth Node:** OAuth2 Flow, Token Management
 - **d.velop Platform Node:** Generic API Calls, Custom Actions
-- **d.velop Webhook Node:** Event Listening, Webhook Verification
 
 ---
 
@@ -56,7 +39,7 @@
 - [ ] n8n Node-Template Generator entwickeln
 - [ ] Mapping-Logic: API Parameters → n8n Properties
 
-### 3.2 Docker Development Setup
+### 3.2 Docker Development Setups
 - [ ] n8n Docker Container mit Custom Node Mount
 - [ ] Hot-Reload für Node-Entwicklung konfigurieren
 - [ ] Debug-Logging und Error Handling setup

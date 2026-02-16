@@ -1,7 +1,7 @@
 {
   "name": "dvelop-n8n-integration",
   "version": "1.0.0",
-  "description": "d.velop Platform integration for n8n with automatic node generation",
+  "description": "d.velop Platform integration for n8n",
   "main": "index.js",
   "scripts": {
     "dev": "docker-compose up -d",
@@ -9,7 +9,6 @@
     "logs": "docker-compose logs -f n8n",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "generate:nodes": "node dist/generator/index.js",
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src"
@@ -44,9 +43,10 @@
     "d.velop",
     "automation",
     "workflow",
-    "nodes"
+    "nodes",
+    "n8n-communtiy-node-package"
   ],
-  "author": "Your Name",
+  "author": "Santino",
   "license": "MIT",
   "packageManager": "yarn@4.9.4"
 }
