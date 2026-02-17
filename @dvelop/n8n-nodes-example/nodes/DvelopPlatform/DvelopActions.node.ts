@@ -11,12 +11,7 @@
 
 import type * as n8nWorkflow from 'n8n-workflow';
 
-/**
- *
- * - Keep "stable" operation values as the actionId (string).
- * - Call the same execute endpoint dynamically for BOTH stable and volatile:
- *   POST /actions/api/execute/{actionId}
- */
+
 
 type StableOp =
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT'
@@ -105,8 +100,6 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				name: 'volatileActionId',
 				type: 'options',
 				displayOptions: { show: { actionMode: ['volatile'] } },
-
-				
 				typeOptions: { loadOptionsMethod: 'getVolatileActions' },
 
 				default: '',
@@ -288,26 +281,44 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 	};
 
 	methods = {
-		loadOptions: {
-			async getVolatileActions(this: n8nWorkflow.ILoadOptionsFunctions) {
-				try {
-					// Use the same auth handling as in execute()
-					const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
-						method: 'GET',
-						url: '={{$credentials.baseUrl}}/actions/api/v1/actions',
-						json: true,
-					});
+	loadOptions: {
+		async getVolatileActions(this: n8nWorkflow.ILoadOptionsFunctions) {
+			try {
+				const credentials = await this.getCredentials('dvelopApi') as {
+					baseUrl: string;
+				};
 
-					const list = Array.isArray(response) ? response : (response?.actions || response?.data || []);
-					return list
-						.filter((a: any) => a?.volatile)
-						.map((a: any) => ({ name: a.display_name || a.id, value: a.id }));
-				} catch (e) {
-					return [];
-				}
-			},
+				const response = await this.helpers.httpRequestWithAuthentication.call(
+					this,
+					'dvelopApi',
+					{
+						method: 'GET',
+						url: `${credentials.baseUrl}/actions/api/v1/actions`,
+						json: true,
+					}
+				);
+
+				const list = Array.isArray(response)
+					? response
+					: (response?.actions || response?.data || []);
+
+				return list
+					.filter((a: any) => a?.volatile)
+					.map((a: any) => ({
+						name: a.display_name || a.name || a.id,
+						value: a.id,
+					}));
+
+			} catch (error) {
+				// optional: debugging
+				// console.log(error);
+
+				return [];
+			}
 		},
-	};
+	},
+};
+
 
 	async execute(this: n8nWorkflow.IExecuteFunctions): Promise<n8nWorkflow.INodeExecutionData[][]> {
 		const items = this.getInputData();

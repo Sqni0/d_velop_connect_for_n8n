@@ -10,8 +10,6 @@ export class DvelopApi implements ICredentialType {
 	name = 'dvelopApi';
 	displayName = 'd.velop API';
 	documentationUrl = 'https://help.d-velop.de/dev/documentation/identityprovider';
-
-//	icon: Icon = 'file:dvelop.svg';
 	icon: Icon = { light: 'file:../icons/dvelop_light.svg', dark: 'file:../icons/dvelop_dark.svg' };
 
 	properties: INodeProperties[] = [
@@ -49,18 +47,16 @@ export class DvelopApi implements ICredentialType {
 
 
 	authenticate: IAuthenticateGeneric = {
-		type: 'generic',
-		properties: {
-			headers: {
-				Authorization:
-					'={{ $credentials.authMethod === "bearerToken" && $credentials.bearerToken ? "Bearer " + $credentials.bearerToken : undefined }}',
-				Cookie:
-					'={{ $credentials.authMethod === "cookieAuth" && $credentials.cookieAuth ? "AuthSessionId=" + $credentials.cookieAuth : undefined }}',
-			},
+	type: 'generic',
+	properties: {
+		headers: {
+			Authorization: '=Bearer {{$credentials.bearerToken}}',
+			Accept: 'application/json',
 		},
-	};
+	},
+};
 
-	test: ICredentialTestRequest = {
+test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.baseUrl}}',
 			url: '/actions/api/v1/actions',
@@ -69,3 +65,6 @@ export class DvelopApi implements ICredentialType {
 		},
 	};
 }
+
+
+
