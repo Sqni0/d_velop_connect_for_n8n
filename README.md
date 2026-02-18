@@ -71,14 +71,14 @@ As an example:
 - This is going to showcase how the Stable Nodes work in detail
 
 **5.1 Download Document**
-- To setup the Download node by hand you just need to fill in the mandatory fields and you are ready do Download
+- To setup the Download node manually, you just need to fill in the mandatory fields and you are ready to Download the file.
 
 <img width="461" height="486" alt="image" src="https://github.com/user-attachments/assets/befacd4b-82ea-49f7-a901-d0096416a674" />
 
-- To find out what the *Repository* is, you need to open the Document you want to download to the n8n node and copy the red Marked Link section.
+- To find out what the *Repository* string is, you need to open the Document you want to download via. the n8n node and copy the red Marked Link section.
 
 
-- To identify the *Document ID* you can, open te Details and Look for Document_Nr 
+- To identify the *Document ID* you can, open te Details and Look for Document_Nr. This is also circled with a rectangle
 
 
 <img width="1226" height="708" alt="Download_Document" src="https://github.com/user-attachments/assets/ea17fb6d-8fae-4bc9-937d-825eb2a40349" />
@@ -92,4 +92,147 @@ As an example:
 <img width="660" height="353" alt="image" src="https://github.com/user-attachments/assets/22da756b-d62f-4be9-b69d-5524355a9068" />
 
 **5.2. Get Document Info**
-- This action show 
+- This action show all the Information the Document has attached to it
+- Example File :
+ ```bash
+   [
+  {
+    "actionMode": "stable",
+    "actionId": "integrationplatform_integrationplatform_GET_DOCUMENT_INFO",
+    "response": {
+      "_links": {
+        "self": {
+          "href": "/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2m/N500000001?sourceid=%2fdms%2fr%2f78c93525-cb65-4a62-8999-61aef0e99b94%2fsource"
+        },
+        "deleteWithReason": {
+          "href": ""
+        },
+        "mainblobcontent": {
+          "href": "/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2/N500000001/v/3_3/b/main/c"
+        },
+        "updateWithContent": {
+          "href": "/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2m/N500000001"
+        },
+        "update": {
+          "href": "/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2m/N500000001"
+        },
+        "pdfblobcontent": {
+          "href": "/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2/N500000001/v/3_3/b/P1/c"
+        },
+        "versions": {
+          "href": "/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2m/N500000001/v/"
+        }
+      },
+      "location": "https://connect-for-n8n-test.d-velop.cloud/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/o2m/N500000001?sourceid=/dms/r/78c93525-cb65-4a62-8999-61aef0e99b94/source",
+      "id": "N500000001",
+      "sourceProperties": [
+        {
+          "key": "property_last_modified_date",
+          "value": "2026-02-18T13:38:28.000+00:00"
+        },
+        {
+          "key": "property_last_alteration_date",
+          "value": "2026-02-18T13:38:28.000+00:00"
+        },
+        {
+          "key": "property_editor",
+          "value": "santinokne",
+          "displayValue": "Santino Knecht"
+        },
+        {
+          "key": "property_remark1",
+          "value": ""
+        },
+        {
+          "key": "property_remark2",
+          "value": ""
+        },
+        {
+          "key": "property_remark3",
+          "value": ""
+        },
+        {
+          "key": "property_remark4",
+          "value": ""
+        },
+        {
+          "key": "property_owner",
+          "value": "santinokne",
+          "displayValue": "Santino Knecht"
+        },
+        {
+          "key": "property_caption",
+          "value": "N500000001"
+        },
+        {
+          "key": "property_filename",
+          "value": "Rechnung_Nr1234231.DOCX"
+        },
+        {
+          "key": "property_filetype",
+          "value": "DOCX"
+        },
+        {
+          "key": "property_filemimetype",
+          "value": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        },
+        {
+          "key": "property_document_id",
+          "value": "N500000001"
+        },
+        {
+          "key": "property_document_number",
+          "value": "N500000001"
+        },
+        {
+          "key": "property_creation_date",
+          "value": "2026-02-10T11:02:25.000+00:00"
+        },
+        {
+          "key": "property_size",
+          "value": "16532"
+        },
+        {
+          "key": "property_state",
+          "value": "Processing"
+        },
+        {
+          "key": "property_variant_number",
+          "value": "1"
+        },
+        {
+          "key": "property_access_date",
+          "value": "2026-02-18T13:28:38.000+00:00"
+        },
+        {
+          "key": "property_category",
+          "value": "7a45e",
+          "displayValue": "Rechnungen"
+        },
+        {
+          "key": "property_date_end_of_retention",
+          "value": "Unlimited"
+        },
+        {
+          "key": "property_colorcode",
+          "value": ""
+        },
+        {
+          "key": "2",
+          "value": "Zahlung Erhalten"
+        },
+        {
+          "key": "71f83ae4-9245-4353-a540-9dde87349446",
+          "value": "Zahlung Erhalten"
+        }
+      ],
+      "sourceCategories": [
+        "7a45e",
+        "dd1a374e-fd48-4c03-a9c5-352ed0f99cc8"
+      ]
+    }
+  }
+]
+
+   ```
+
