@@ -75,13 +75,16 @@ As an example:
 
 <img width="461" height="486" alt="image" src="https://github.com/user-attachments/assets/befacd4b-82ea-49f7-a901-d0096416a674" />
 
-- To find out what the *Repository* is, you need to open the Document you want to download to the n8n node and copy the Blue Marked ID
+- To find out what the *Repository* is, you need to open the Document you want to download to the n8n node and copy the red Marked Link section.
 
-<img width="847" height="42" alt="image" src="https://github.com/user-attachments/assets/54b9878f-e6af-49c4-9d06-3f179169ac0c" />
 
-- To identify the *Document ID* you can, in the same tab as the Repository. Copy the Blue Marked section of the Link, this is Your Document ID
+- To identify the *Document ID* you can, open te Details and Look for Document_Nr 
 
-<img width="852" height="41" alt="image" src="https://github.com/user-attachments/assets/c5c87196-a0bd-4b24-b96d-a401b85d69d9" />
+
+<img width="1226" height="708" alt="Download_Document" src="https://github.com/user-attachments/assets/ea17fb6d-8fae-4bc9-937d-825eb2a40349" />
+
+
+
 
 
 - The output will be Display in the Rightside of the Node, you can also Download this File
