@@ -95,36 +95,36 @@ As an example:
 - This action show all the Information the Document has attached to it
 <details>
   <summary>Document Info Data</summary>
-Document ID
-Document Location (URL)
-Self Link
-Delete Link
-Main Content Link
-PDF Content Link
-Update Link
-Update With Content Link
-Versions Link
-Last Modified Date
-Last Alteration Date
-Editor ID
-Editor Name
-Owner ID
-Owner Name
-Document Caption
-File Name
-File Type
-File MIME Type
-Document Number
-Creation Date
-File Size
-Document State
-Variant Number
-Last Access Date
-Document Category ID
-Document Category Name
-Retention Date
-Custom Properties
-Source Categories
+- Document ID
+- Document Location (URL)
+- Self Link
+- Delete Link
+- Main Content Link
+- PDF Content Link
+- Update Link
+- Update With Content Link
+- Versions Link
+- Last Modified Date
+- Last Alteration Date
+- Editor ID
+- Editor Name
+- Owner ID
+- Owner Name
+- Document Caption
+- File Name
+- File Type
+- File MIME Type
+- Document Number
+- Creation Date
+- File Size
+- Document State
+- Variant Number
+- Last Access Date
+- Document Category ID
+- Document Category Name
+- Retention Date
+- Custom Properties
+- Source Categories
 <details>
 
 
