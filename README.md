@@ -72,15 +72,20 @@ As an example:
 
 **5.1 Download Document**
 - To setup the Download node by hand you just need to fill in the mandatory fields and you are ready do Download
+
 <img width="461" height="486" alt="image" src="https://github.com/user-attachments/assets/befacd4b-82ea-49f7-a901-d0096416a674" />
 
 - To find out what the *Repository* is, you need to open the Document you want to download to the n8n node and copy the Blue Marked ID
+
 <img width="847" height="42" alt="image" src="https://github.com/user-attachments/assets/54b9878f-e6af-49c4-9d06-3f179169ac0c" />
+
 - To identify the *Document ID* you can, in the same tab as the Repository. Copy the Blue Marked section of the Link, this is Your Document ID
+
 <img width="852" height="41" alt="image" src="https://github.com/user-attachments/assets/c5c87196-a0bd-4b24-b96d-a401b85d69d9" />
+
 
 - The output will be Display in the Rightside of the Node, you can also Download this File
 
-  <img width="660" height="353" alt="image" src="https://github.com/user-attachments/assets/22da756b-d62f-4be9-b69d-5524355a9068" />
+<img width="660" height="353" alt="image" src="https://github.com/user-attachments/assets/22da756b-d62f-4be9-b69d-5524355a9068" />
 
 
