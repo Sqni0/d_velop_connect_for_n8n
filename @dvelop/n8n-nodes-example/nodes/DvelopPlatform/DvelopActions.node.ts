@@ -15,7 +15,6 @@ import type * as n8nWorkflow from 'n8n-workflow';
 
 type StableOp =
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT'
-	| 'integrationplatform_integrationplatform_GET_CACHE_URLS'
 	| 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO'
 	| 'integrationplatform_integrationplatform_GET_USER_INFO'
 	| 'integrationplatform_inbound_CreateInboundBatch';
@@ -59,19 +58,12 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 				
 				displayOptions: { show: { actionMode: ['stable'] } },
 
-				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
 						name: 'Download Document',
 						value: 'integrationplatform_integrationplatform_GET_DOCUMENT',
 						description: 'Downloads the specific document',
 						action: 'Downloads the document to the specified document ID',
-					},
-					{
-						name: 'Temporary File Upload',
-						value: 'integrationplatform_integrationplatform_GET_CACHE_URLS',
-						description: 'Generates a URL that can be used for a temporary file upload',
-						action: 'Generates a URL that can be used for a temporary file upload',
 					},
 					{
 						name: 'Get Document Info',
@@ -144,61 +136,6 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					{ name: 'PDF', value: 'pdf' },
 				],
 				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_DOCUMENT'], actionMode: ['stable'] } },
-			},
-
-			// GET_CACHE_URLS 
-			{
-				displayName: 'File Source',
-				name: 'cacheUrls_fileSource',
-				type: 'options',
-				default: 'binary',
-				options: [
-					{ name: 'From N8n Binary', value: 'binary' },
-					{ name: 'From Base64/String', value: 'string' },
-				],
-				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] } },
-			},
-			{
-				displayName: 'Input Binary Property',
-				name: 'cacheUrls_inputBinaryProperty',
-				type: 'string',
-				default: 'data',
-				displayOptions: {
-					show: {
-						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
-						cacheUrls_fileSource: ['binary'],
-					},
-				},
-			},
-			{
-				displayName: 'File (Base64/String)',
-				name: 'cacheUrls_fileBinaryString',
-				type: 'string',
-				default: '',
-				description: 'If you do not use n8n binary: paste Base64 (or data URL) here',
-				displayOptions: {
-					show: {
-						operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'],
-						cacheUrls_fileSource: ['string'],
-					},
-				},
-			},
-			{
-				displayName: 'Time to Live (TTL)',
-				name: 'cacheUrls_ttl',
-				type: 'options',
-				default: '15m',
-				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
-				options: [
-					{ name: '30 Seconds', value: '30s' },
-					{ name: '5 Minutes', value: '5m' },
-					{ name: '15 Minutes', value: '15m' },
-					{ name: '30 Minutes', value: '30m' },
-					{ name: '1 Hour', value: '1h' },
-					{ name: '12 Hours', value: '12h' },
-					{ name: '24 Hours', value: '24h' },
-				],
-				displayOptions: { show: { operation: ['integrationplatform_integrationplatform_GET_CACHE_URLS'] } },
 			},
 
 			// GET_DOCUMENT_INFO
@@ -423,36 +360,6 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 					break;
 				}
 
-				case 'integrationplatform_integrationplatform_GET_CACHE_URLS': {
-					const fileSource = this.getNodeParameter('cacheUrls_fileSource', i) as 'binary' | 'string';
-
-					let base64: string;
-					let mimeType = 'application/octet-stream';
-
-					if (fileSource === 'binary') {
-						const binProp = this.getNodeParameter('cacheUrls_inputBinaryProperty', i) as string;
-						const buf = await this.helpers.getBinaryDataBuffer(i, binProp);
-
-						const item = items[i];
-						const bin = (item.binary as any)?.[binProp];
-						if (bin?.mimeType) mimeType = bin.mimeType;
-
-						base64 = buf.toString('base64');
-					} else {
-						base64 = this.getNodeParameter('cacheUrls_fileBinaryString', i) as string;
-						base64 = base64.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
-					
-					}
-
-					payload.file_binary = {
-						content: base64,
-						'content-type': mimeType,
-					};
-
-					payload.TTL = this.getNodeParameter('cacheUrls_ttl', i);
-					break;
-				}
-
 				case 'integrationplatform_integrationplatform_GET_DOCUMENT_INFO': {
 					payload.repo_id = this.getNodeParameter('getDocumentInfo_repoId', i);
 					payload.document_id = this.getNodeParameter('getDocumentInfo_documentId', i);
@@ -501,6 +408,7 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 
 			
 			if (operation === 'integrationplatform_integrationplatform_GET_DOCUMENT') continue;
+
 
 			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
 				method: 'POST',

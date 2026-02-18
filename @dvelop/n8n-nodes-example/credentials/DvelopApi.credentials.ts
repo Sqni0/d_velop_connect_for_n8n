@@ -44,7 +44,7 @@ export class DvelopApi implements ICredentialType {
 			},
 		},
 	];
-
+	
 
 	authenticate: IAuthenticateGeneric = {
 	type: 'generic',
