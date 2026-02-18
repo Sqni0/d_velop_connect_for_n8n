@@ -35,7 +35,7 @@ For ervery Action Node you want to execute you need to have your credentials set
 
 **3.1 Base URL**
 - This is just the Base URL of you Instance, marked in the Blue (Dont Copy the last /)
-- <img width="600" height="41" alt="image" src="https://github.com/user-attachments/assets/2e89a2b6-0387-4ab9-8891-3c4090b817f0" />
+  <img width="600" height="41" alt="image" src="https://github.com/user-attachments/assets/2e89a2b6-0387-4ab9-8891-3c4090b817f0" />
 
 **3.2 Authentication Method**
 - The Bearer Token is nothing else exept the API-Key you can find in the d.velop instance Konfigurations, under Login -> API-Key
@@ -63,4 +63,5 @@ To Use this node in A Workflow you need to open **nodes panel** and search for *
 - Theese Actions can also be Created to the Proccess Studio script tab, and can be used in this Node.
 As an example: 
 <img width="431" height="272" alt="image" src="https://github.com/user-attachments/assets/1cdbbc41-5fc8-4e31-9fef-df1055f0b2ab" />
+
 - Those are Standart Volatile sellcforce Actions, and the Hello_World Action is a script from the Process Studio.
