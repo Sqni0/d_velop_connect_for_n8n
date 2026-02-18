@@ -43,3 +43,24 @@ For ervery Action Node you want to execute you need to have your credentials set
 
 **3.3 Allowed HTTP Request**
 - For the node to work you need to Allow the HTTP Rquests
+
+## 4. Use the Node in a Workflow 
+To Use this node in A Workflow you need to open **nodes panel** and search for *d.velop Actions*
+ 
+**4.1 Pick a Action Mode**
+ Here you can choose beetween a 4 Stable Actions or your Volatile Actions 
+ 
+ **4.2 Stable Actions**
+  Stable Actions are pre definded, and they will always be the same
+  They are the Standard Features such as:
+ - Download a Document
+ - Get Document Info
+ - Get Uer Info
+ - Import Document
+
+**Volatile Actions**
+- Volatile Actions arent Pre defined and differ from d.velop User to User. They are Actions that are not Hard coded and arent a Standard.
+- Theese Actions can also be Created to the Proccess Studio script tab, and can be used in this Node.
+As an example: 
+<img width="431" height="272" alt="image" src="https://github.com/user-attachments/assets/1cdbbc41-5fc8-4e31-9fef-df1055f0b2ab" />
+- Those are Standart Volatile sellcforce Actions, and the Hello_World Action is a script from the Process Studio.
