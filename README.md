@@ -29,6 +29,17 @@ This Node is compleaty intigrated in n8n and you can combine this Node with what
 
 
 ## 3.Setting up the Credentials
-For ervery Action Node you want to execute you need to have a Account set up (Credentials)
+For ervery Action Node you want to execute you need to have your credentials setup, without them the API Wouldnt have the Required Information to execute calls
 
 <img width="1312" height="746" alt="image" src="https://github.com/user-attachments/assets/fe0a35f7-6bc2-4837-a995-02426ab822e5" />
+
+**3.1 Base URL**
+- This is just the Base URL of you Instance, marked in the Blue (Dont Copy the last /)
+- <img width="600" height="41" alt="image" src="https://github.com/user-attachments/assets/2e89a2b6-0387-4ab9-8891-3c4090b817f0" />
+
+**3.2 Authentication Method**
+- The Bearer Token is nothing else exept the API-Key you can find in the d.velop instance Konfigurations, under Login -> API-Key
+- There you have to create an API-Key. Keep in mind that the key only Shows one, therefore you should save the key somwhere save. Also Keep this Key for you and DONT hand it out.
+
+**3.3 Allowed HTTP Request**
+- For the node to work you need to Allow the HTTP Rquests
