@@ -91,4 +91,5 @@ As an example:
 
 <img width="660" height="353" alt="image" src="https://github.com/user-attachments/assets/22da756b-d62f-4be9-b69d-5524355a9068" />
 
-
+**5.2. Get Document Info**
+- This action show 
