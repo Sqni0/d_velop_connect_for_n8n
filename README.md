@@ -39,10 +39,10 @@ For ervery Action Node you want to execute you need to have your credentials set
 
 **3.2 Authentication Method**
 - The Bearer Token is nothing else exept the API-Key you can find in the d.velop instance Konfigurations, under Login -> API-Key
-- There you have to create an API-Key. Keep in mind that the key only Shows one, therefore you should save the key somwhere save. Also Keep this Key for you and DONT hand it out.
+- There you have to create an API-Key. Keep in mind that the key only Shows once, therefore you should save the key somwhere save. Also Keep this Key for you and do **NOT** hand it out.
 
 **3.3 Allowed HTTP Request**
-- For the node to work you need to Allow the HTTP Rquests
+- For the node to work you need to Allow the HTTP Rquests.
 
 ## 4. Use the Node in a Workflow 
 To Use this node in A Workflow you need to open **nodes panel** and search for *d.velop Actions*
