@@ -198,6 +198,8 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 
 **5.4.1 Setting up the Workflow**
 
+- To setup the Workflow you need to use the 
+
 <img width="1423" height="536" alt="image" src="https://github.com/user-attachments/assets/1d0ccf5e-7a87-4e46-aa5f-de8c63943809" />
 
 ---
