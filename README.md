@@ -96,11 +96,8 @@ As an example:
 <img width="660" height="353" alt="image" src="https://github.com/user-attachments/assets/22da756b-d62f-4be9-b69d-5524355a9068" />
 
 **5.2. Get Document Info**
-- This action show all the Information the Document has attached to it
+This action shows all the Information the Document has attached to it, for example:
 
-
-<summary>Propperties List</summary>
-<details> 
 - Document ID
 - Document Location (URL)
 - Self Link
@@ -131,7 +128,55 @@ As an example:
 - Retenition Date
 - Custom Properties
 - Source Categories
-<details>
 
-- As you can See, there 
+- To setup the Node manually, you just need to fill in the mandatory fields and you are ready to get the Document Info.
+
+<img width="577" height="501" alt="image" src="https://github.com/user-attachments/assets/54410412-5425-4aeb-addf-82db00a9c6ce" />
+
+- To find out what the *Repository* string is, you need to open the Document you want to get the Information from, via. the n8n node and copy the red Marked Link section.
+
+
+- To identify the *Document ID* you can, open te Details and Look for Document_Nr. This is also circled with a rectangle
+
+
+<img width="1226" height="708" alt="Download_Document" src="https://github.com/user-attachments/assets/ea17fb6d-8fae-4bc9-937d-825eb2a40349" />
+
+
+
+
+- The output will be Display in the Rightside of the Node:
+
+<img width="1401" height="878" alt="image" src="https://github.com/user-attachments/assets/360cf720-a709-47a9-a1ab-2b681ced2c20" />
+
+- This is a lot of JSON, so the whole Output wont be shown.
+
+
+**5.3. Get User Info**
+
+This Actions shows all known Information, that is Attatched to the User. Theese are all the Functions that this Actions return:
+
+- getUserId – Returns the unique internal user ID
+- getExternalId – Returns the external user ID (if available)
+- getUserName – Returns the user's login username
+- getDisplayName – Returns the user's full display name
+- getGivenName – Returns the user's first name
+- getFamilyName – Returns the user's last name
+- getFormattedName – Returns the user's formatted full name
+- getPrimaryEmail – Returns the user's primary email address
+- getEmails – Returns all email addresses of the user
+- getProfileUrl – Returns the user's profile URL
+- getUserTitle – Returns the user's job title or position
+- getPhotos – Returns the user's profile photo information
+- getPhoneNumbers – Returns the user's phone numbers
+- getGroups – Returns all groups the user belongs to
+- getGroupIds – Returns the IDs of the user's groups
+- getGroupDisplayNames – Returns the names of the user's groups
+
+
+
+
+
+
+
+<img width="1365" height="1142" alt="image" src="https://github.com/user-attachments/assets/6311374e-0825-42fd-bb55-cb9887a3128f" />
 
