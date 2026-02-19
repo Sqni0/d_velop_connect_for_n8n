@@ -214,3 +214,45 @@ The output will be Display in the Rightside of the Node:
 
 <img width="1365" height="1142" alt="image" src="https://github.com/user-attachments/assets/6311374e-0825-42fd-bb55-cb9887a3128f" />
 
+**5.4. Import Document**
+
+This Action Allows you to Upload files directly to your DMS, using d.velop Inbound.
+The Action donstn returns Any Values, it just Uploads Files, so they can be Indexed.
+
+**5.4.1 Setting up the Wokflow**
+- To work with this Action, you need a Minimal Workflow:
+
+<img width="1423" height="536" alt="image" src="https://github.com/user-attachments/assets/1d0ccf5e-7a87-4e46-aa5f-de8c63943809" />
+
+- In order to Upload a file with the d.velop Action, you need a File in your Workflow.
+- As an small example the *"Read/Write Files from Disk"* Node is Used to get a file in to the Workflow. 
+
+**5.4.2 Setting up the Node**
+- This node in Paticural has an Input from The node before
+
+<img width="1162" height="753" alt="image" src="https://github.com/user-attachments/assets/3adb6883-d02f-4c18-9089-064a53aaa0ef" />
+
+**File Name**
+- The File name can either be set manually every Time, or you write a simple Java Script Expression:
+  ```bash
+  {{ $json.fileName }}
+  ```
+**File Source**
+- When configuring the node, set the File Source to From N8n Binary. This means the file will be taken from the binary data of a previous node in your workflow.
+- Alternatively, you can use From Base64/String as the File Source. This option allows you to upload a file using its Base64-encoded content instead of binary data.
+
+**Input Binary Property**
+- The Input Binary Property defines the name of the binary field that contains the file. In most cases, this property is called: binary.
+
+**Import Profile**
+- In order to get the Import Profile you need to navigate to *configuration* -> *Document Managment* -> *Import* -> *Importoption* -> *Importprofile*
+
+<img width="1076" height="599" alt="image" src="https://github.com/user-attachments/assets/8bac4b1c-b63d-418c-b9a4-66be1800e3e8" />
+
+- In this setting you can Copy the red Marked *Import Profile*
+
+**5.4.3 DMS Inbound**
+- STILL UNDER CONSTRUCTION;
+- API IS BITCHING
+
+- 
