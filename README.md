@@ -144,7 +144,7 @@ As an example:
 
 ## 5. Stable Actions in Detail
 
-This is going to showcase how the stable nodes work in detail.
+This is going to showcase how the stable Actions work in detail.
 
 ---
 
