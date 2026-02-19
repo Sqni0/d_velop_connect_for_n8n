@@ -59,7 +59,6 @@ This project provides a gateway for hyperautomation by enabling seamless integra
 - Call the metadata from documents
 - Call user information
 
-Note that: this node is completely integrated in n8n and you can combine this node with whatever other nodes you need.
 
 ---
 
