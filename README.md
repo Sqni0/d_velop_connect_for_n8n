@@ -344,11 +344,6 @@ Example response:
 }
 ```
 
-Solution checklist:
-- Veryfiy Bearer Token
-- Ensure token is valid
-- Ensure token is not expired
-- Ensure correct Base URL
 
 **7.2 Document Errors**
 
