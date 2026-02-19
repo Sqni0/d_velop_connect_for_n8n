@@ -13,7 +13,7 @@
 - Import documents automaticly to the DMS
 - Call the Meta-Data from documents
 - Call User Information
-This Node is compleaty intigrated in n8n and you can combine this Node with whatever other nodes as you need.
+- This Node is compleaty intigrated in n8n and you can combine this Node with whatever other nodes as you need.
 
 ## 2.Prerequisits
 
