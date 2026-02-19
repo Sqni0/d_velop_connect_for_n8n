@@ -53,8 +53,9 @@ To Use this node in A Workflow you need to open **nodes panel** and search for *
 
  
  **4.2. Stable Actions**
-  Stable Actions are pre definded, and they will always be the same
-  They are the Standard Features such as:
+
+Stable Actions are pre definded, and they will always be the same
+They are the Standard Features such as:
  - Download a Document
  - Get Document Info
  - Get Uer Info
@@ -71,6 +72,7 @@ As an example:
 
 ## 5. Stable Actions in Detail
 - This is going to showcase how the Stable Nodes work in detail
+
 
 **5.1 Download Document**
 - To setup the Download node manually, you just need to fill in the mandatory fields and you are ready to Download the file.
@@ -95,39 +97,41 @@ As an example:
 
 **5.2. Get Document Info**
 - This action show all the Information the Document has attached to it
-<details>
-  <summary>Document Info Data</summary>
+
+
+<summary>Propperties List</summary>
+<details> 
 - Document ID
 - Document Location (URL)
 - Self Link
 - Delete Link
-- Main Content Link
+- Main content Link
 - PDF Content Link
 - Update Link
-- Update With Content Link
+- Update with Content Link
 - Versions Link
-- Last Modified Date
+- LAs Modified Date
 - Last Alteration Date
 - Editor ID
 - Editor Name
 - Owner ID
 - Owner Name
-- Document Caption
+- Document CAption
 - File Name
 - File Type
-- File MIME Type
+- Fike MINE Type
 - Document Number
 - Creation Date
 - File Size
 - Document State
 - Variant Number
 - Last Access Date
-- Document Category ID
-- Document Category Name
-- Retention Date
+- Document Categoty ID
+- Documnet Category Name
+- Retenition Date
 - Custom Properties
 - Source Categories
 <details>
 
-
 - As you can See, there 
+
