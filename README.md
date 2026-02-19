@@ -164,45 +164,114 @@ This is going to showcase how the stable Actions work in detail.
 
 ---
 
-**5.2 Get Document Info**
+**5.2. Get Document Info**
+This action shows all the Information the Document has attached to it, for example:
 
-This action shows all information attached to the document.
+- Document ID
+- Document Location (URL)
+- Self Link
+- Delete Link
+- Main content Link
+- PDF Content Link
+- Update Link
+- Update with Content Link
+- Versions Link
+- LAs Modified Date
+- Last Alteration Date
+- Editor ID
+- Editor Name
+- Owner ID
+- Owner Name
+- Document CAption
+- File Name
+- File Type
+- Fike MINE Type
+- Document Number
+- Creation Date
+- File Size
+- Document State
+- Variant Number
+- Last Access Date
+- Document Categoty ID
+- Documnet Category Name
+- Retenition Date
+- Custom Properties
+- Source Categories
 
 **5.2.1 Setting up the Action**
 
+- To setup the Node manually, you just need to fill in the mandatory fields and you are ready to get the Document Info.
+
 <img width="577" height="501" alt="image" src="https://github.com/user-attachments/assets/54410412-5425-4aeb-addf-82db00a9c6ce" />
+
+- To find out what the *Repository* string is, you need to open the Document you want to get the Information from, via. the n8n node and copy the red Marked Link section.
+
+
+- To identify the *Document ID* you can, open te Details and Look for Document_Nr. This is also circled with a rectangle
+
+
+<img width="1226" height="708" alt="Download_Document" src="https://github.com/user-attachments/assets/ea17fb6d-8fae-4bc9-937d-825eb2a40349" />
+
+
+- The output will be Display in the Rightside of the Node:
 
 <img width="1401" height="878" alt="image" src="https://github.com/user-attachments/assets/360cf720-a709-47a9-a1ab-2b681ced2c20" />
 
----
+- This is a lot of JSON, so the whole Output wont be shown.
 
-**5.3 Get User Info**
 
-This action shows all known information attached to the user.
+**5.3. Get User Info**
+
+This Actions shows all known Information, that is Attatched to the User. Theese are all the Functions that this Actions return:
+
+- getUserId – Returns the unique internal user ID
+- getExternalId – Returns the external user ID (if available)
+- getUserName – Returns the user's login username
+- getDisplayName – Returns the user's full display name
+- getGivenName – Returns the user's first name
+- getFamilyName – Returns the user's last name
+- getFormattedName – Returns the user's formatted full name
+- getPrimaryEmail – Returns the user's primary email address
+- getEmails – Returns all email addresses of the user
+- getProfileUrl – Returns the user's profile URL
+- getUserTitle – Returns the user's job title or position
+- getPhotos – Returns the user's profile photo information
+- getPhoneNumbers – Returns the user's phone numbers
+- getGroups – Returns all groups the user belongs to
+- getGroupIds – Returns the IDs of the user's groups
+- getGroupDisplayNames – Returns the names of the user's groups
+
 
 **5.3.1 Setting up the Action**
+- To set this Action up you just need the User_ID.
 
 <img width="580" height="421" alt="image" src="https://github.com/user-attachments/assets/21f70d38-d286-4653-b31a-b240af5f15fc" />
 
-<img width="1047" height="781" alt="Screenshot" src="https://github.com/user-attachments/assets/ddb2a6bb-e8cd-48ec-ac35-dce8445d0b8a" />
+- To Aquire the User_ID of a DMS User, you need to go in to the Configuration -> Administration -> User account and group management
+- From there you just need to click the User you want the ID From, and Copy the red marked section from the URL
+
+<img width="1047" height="781" alt="Screenshot 2026-02-19 110016" src="https://github.com/user-attachments/assets/ddb2a6bb-e8cd-48ec-ac35-dce8445d0b8a" />
+
+
+The output will be Display in the Rightside of the Node:
+
 
 <img width="1365" height="1142" alt="image" src="https://github.com/user-attachments/assets/6311374e-0825-42fd-bb55-cb9887a3128f" />
 
 ---
 
-**5.4 Import Document**
+**5.4. Import Document**
 
-This action allows you to upload files directly to your DMS using d.velop inbound.
+This Action Allows you to Upload files directly to your DMS, using d.velop Inbound.
+The Action donstn returns Any Values, it just Uploads Files, so they can be Indexed.
 
----
-
-**5.4.1 Setting up the Workflow**
-
-- To setup the Workflow you need to use the 
+**5.4.1 Setting up the Wokflow**
+- To work with this Action, you need a Minimal Workflow:
 
 <img width="1423" height="536" alt="image" src="https://github.com/user-attachments/assets/1d0ccf5e-7a87-4e46-aa5f-de8c63943809" />
 
----
+- In order to Upload a file with the d.velop Action, you need a File in your Workflow.
+- As an small example the *"Read/Write Files from Disk"* Node is Used to get a file in to the Workflow. 
 
 **5.4.2 Setting up the Node**
 - This node in Paticural has an Input from The node before
@@ -228,8 +297,9 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 
 - In this setting you can Copy the red Marked *Import Profile*
 
-  **5.4.3 DMS Input**
-// Das klappt nicht wegen dem API Time Stamp
+**5.4.3 DMS Inbound**
+- STILL UNDER CONSTRUCTION;
+- API IS BITCHING
 
 ## 6. Volatile Action in Detail
 
