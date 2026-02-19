@@ -214,3 +214,94 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 <img width="1076" height="599" alt="image" src="https://github.com/user-attachments/assets/8bac4b1c-b63d-418c-b9a4-66be1800e3e8" />
 
 - In this setting you can Copy the red Marked *Import Profile*
+
+  **5.4.3 DMS Input**
+// Das klappt nicht wegen dem API Time Stamp
+
+## 6. Volatile Action in Detail
+
+- Here your are going to find Out how to Setup any Volatile Action and how to fill the Payload with the Right stuff.
+
+**6.1. Choose from your Actions**
+
+<img width="730" height="653" alt="image" src="https://github.com/user-attachments/assets/dff6ac75-d274-4e18-ac10-081af5e83ae0" />
+
+- If you chose your action you need to fill the Payload
+
+**6.2. Payload of a Action**
+- To find out what the Payload of a Action is you need to use a *API-Client* like *Bruno*
+- To get all Volatile Actions you need to run this API call with the *Base URL* + the *API-Key (Token)*
+<img width="556" height="240" alt="image" src="https://github.com/user-attachments/assets/cb0dbcce-4425-4fcc-906d-b3a643f2d430" />
+
+- If you execute this API call you get a list of all the Volatile Actions back.
+- Tetstwise we will take a look at the *Salesforce_get-recod* Action.
+<details> 
+```bash
+{
+    "id": "salesforce_get-record",
+    "display_name": "Salesforce - Get Record",
+    "tags": null,
+    "description": "This operation gets a record.",
+    "endpoint": "/actions/api/execute/salesforce_get-record",
+    "execution_mode": "Synchron",
+    "input_properties": [
+      {
+        "id": "objectApiName",
+        "type": "String",
+        "title": "Object API Name",
+        "description": "",
+        "required": true,
+        "visibility": "Standard",
+        "initial_value": "",
+        "object_properties": null,
+        "fixed_value_set": null,
+        "data_query_url": "",
+        "data_query_parameter": null
+      },
+      {
+        "id": "recordId",
+        "type": "String",
+        "title": "Record ID",
+        "description": "",
+        "required": true,
+        "visibility": "Standard",
+        "initial_value": "",
+        "object_properties": null,
+        "fixed_value_set": null,
+        "data_query_url": "",
+        "data_query_parameter": null
+      },
+      {
+        "id": "orgUrl",
+        "type": "String",
+        "title": "Salesforce Org URL",
+        "description": "",
+        "required": true,
+        "visibility": "Advanced",
+        "initial_value": "",
+        "object_properties": null,
+        "fixed_value_set": null,
+        "data_query_url": "/salesforce/process/actions/values/orgs",
+        "data_query_parameter": null
+      }
+    ],
+    "output_properties": [
+      {
+        "id": "record",
+        "type": "Object",
+        "title": "Record",
+        "description": "",
+        "object_properties": null
+      }
+    ],
+    "volatile": true
+```
+</details>
+
+
+- The Payload in this instance is:
+
+  ```bash
+
+  ```
+  
