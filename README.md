@@ -26,12 +26,23 @@
     - [5.4.1 Setting up the Workflow](#541-setting-up-the-workflow)
     - [5.4.2 Setting up the Node](#542-setting-up-the-node)
     - [5.4.3 DMS Inbound](#543-dms-inbound)
+- [6. Volatile Action in Detail](#6-volatile-action-in-detail)
+  - [6.1 Choose from your Actions](#61-choose-from-your-actions)
+  - [6.2 Payload of an Action](#62-payload-of-an-action)
+  - [6.3 Assemble the Node](#63-assamble-the-node)
+- [7. Error Codes](#7-error-codes)
+  - [7.1 Authentication Errors](#71-authentication-errors)
+  - [7.2 Document Errors](#72-document-errors)
+  - [7.3 Import Errors](#73-import-errors)
+  - [7.4 Volatile Action Errors](#74-volatile-action-errors)
+
 
 ---
 
 ## Overview
 
-- The main goal of this project is to create a gateway to hyperautomation with other apps in the d.velop hemisphere. And this node basically does all that.
+This project provides a gateway for hyperautomation by enabling seamless integration between the d.velop platform and external applications using n8n. The d.velop Actions Node allows users to execute d.velop Actions directly within n8n workflows, making it possible to automate document management, user operations, and custom process integrations. This enables powerful, flexible, and scalable automation across the entire d.velop ecosystem.
+
 
 ---
 
@@ -47,7 +58,8 @@
 - Import documents automatically to the DMS
 - Call the metadata from documents
 - Call user information
-- This node is completely integrated in n8n and you can combine this node with whatever other nodes you need.
+
+Note that: this node is completely integrated in n8n and you can combine this node with whatever other nodes you need.
 
 ---
 
@@ -220,7 +232,7 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 
 ## 6. Volatile Action in Detail
 
-- Here your are going to find Out how to Setup any Volatile Action and how to fill the Payload with the Right stuff.
+- The following is an instructional guide to setting up volatile actions and loading the payload correctly.
 
 **6.1. Choose from your Actions**
 
@@ -228,13 +240,13 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 
 - If you chose your action you need to fill the Payload
 
-**6.2. Payload of a Action**
-- To find out what the Payload of a Action is you need to use a *API-Client* like *Bruno*
-- To get all Volatile Actions you need to run this API call with the *Base URL* + the *API-Key (Token)*
+**6.2. Payload of an Action**
+- To ascertain the payload of an action, it is necessary to utilize an *API client*, such as *Bruno*.
+- To retrieve all volatile actions, run this API call with the *base URL* and the *API key (token)*.
 <img width="556" height="240" alt="image" src="https://github.com/user-attachments/assets/cb0dbcce-4425-4fcc-906d-b3a643f2d430" />
 
-- If you execute this API call you get a list of all the Volatile Actions back.
-- Tetstwise we will take a look at the *Salesforce_get-recod* Action.
+- If you execute this API call, you will receive a list of all the volatile actions.
+- In terms of testing, we will examine the Salesforce_getRecord action.
  
 ```bash
 {
@@ -296,8 +308,7 @@ This action allows you to upload files directly to your DMS using d.velop inboun
     ],
     "volatile": true
 ```
-
-- The Payload in this instance is:
+- The payload consists of the *input_properties*. So in this instance the payload is:
 
 ```bash
 {
@@ -305,6 +316,61 @@ This action allows you to upload files directly to your DMS using d.velop inboun
   "recordId": "001XXXXXXXXXXXXXXX",
   "orgUrl": "https://your-org.salesforce.com"
 }
-
 ```
-  
+**6.3 Assamble the Node**
+
+- The last step is to Paste the Payload in the Node of your desire, fill the properties wirh values and Execute the Node!
+
+<img width="939" height="577" alt="image" src="https://github.com/user-attachments/assets/3811a0fe-15e3-4093-93a5-c5f5d2ffd0cb" />
+
+
+## 7. Error codes
+
+- This section describes the most common error code that may occur when using the d.velop Actions Node
+
+**7.1 Authentication Errors**
+
+| Error Code | Message      | Cause                           | Solution                          |
+| ---------- | ------------ | ------------------------------- | --------------------------------- |
+| 401        | Unauthorized | Invalid or missing Bearer Token | Verify API key in credentials     |
+| 403        | Forbidden    | Insufficient permissions        | Check user permissions in d.velop |
+| 400        | Bad Request  | Invalid Base URL or headers     | Verify Base URL and credentials   |
+
+Example response:
+
+```bash
+{
+  "error": "Unauthorized"
+}
+```
+
+Solution checklist:
+- Veryfiy Bearer Token
+- Ensure token is valid
+- Ensure token is not expired
+- Ensure correct Base URL
+
+**7.2 Document Errors**
+
+| Error Code | Message              | Cause                   | Solution                 |
+| ---------- | -------------------- | ----------------------- | ------------------------ |
+| 404        | Document not found   | Invalid document ID     | Verify document ID       |
+| 404        | Repository not found | Invalid repository ID   | Verify repository string |
+| 400        | Invalid parameters   | Missing required fields | Check node configuration |
+
+**7.3 Import Errors**
+
+| Error Code | Message                | Cause                 | Solution                     |
+| ---------- | ---------------------- | --------------------- | ---------------------------- |
+| 400        | Invalid import profile | Wrong import profile  | Verify import profile        |
+| 400        | Missing binary data    | Binary property empty | Verify input binary property |
+| 413        | Payload too large      | File too large        | Reduce file size             |
+
+
+**7.4 Volatile Action Errors**
+
+| Error Code | Message               | Cause                  | Solution                 |
+| ---------- | --------------------- | ---------------------- | ------------------------ |
+| 400        | Invalid payload       | Missing payload fields | Verify payload structure |
+| 404        | Action not found      | Invalid action ID      | Verify action exists     |
+| 500        | Internal server error | Server-side issue      | Check d.velop system     |
