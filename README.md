@@ -192,8 +192,25 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 ---
 
 **5.4.2 Setting up the Node**
+- This node in Paticural has an Input from The node before
 
 <img width="1162" height="753" alt="image" src="https://github.com/user-attachments/assets/3adb6883-d02f-4c18-9089-064a53aaa0ef" />
 
-```bash
-{{ $json.fileName }}
+**File Name**
+- The File name can either be set manually every Time, or you write a simple Java Script Expression:
+  ```bash
+  {{ $json.fileName }}
+  ```
+**File Source**
+- When configuring the node, set the File Source to From N8n Binary. This means the file will be taken from the binary data of a previous node in your workflow.
+- Alternatively, you can use From Base64/String as the File Source. This option allows you to upload a file using its Base64-encoded content instead of binary data.
+
+**Input Binary Property**
+- The Input Binary Property defines the name of the binary field that contains the file. In most cases, this property is called: binary.
+
+**Import Profile**
+- In order to get the Import Profile you need to navigate to *configuration* -> *Document Managment* -> *Import* -> *Importoption* -> *Importprofile*
+
+<img width="1076" height="599" alt="image" src="https://github.com/user-attachments/assets/8bac4b1c-b63d-418c-b9a4-66be1800e3e8" />
+
+- In this setting you can Copy the red Marked *Import Profile*
