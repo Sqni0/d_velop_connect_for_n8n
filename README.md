@@ -152,6 +152,8 @@ This action shows all the Information the Document has attached to it, for examp
 - Custom Properties
 - Source Categories
 
+**5.2.1 Setting up the Action**
+
 - To setup the Node manually, you just need to fill in the mandatory fields and you are ready to get the Document Info.
 
 <img width="577" height="501" alt="image" src="https://github.com/user-attachments/assets/54410412-5425-4aeb-addf-82db00a9c6ce" />
@@ -196,9 +198,18 @@ This Actions shows all known Information, that is Attatched to the User. Theese 
 - getGroupDisplayNames – Returns the names of the user's groups
 
 
+**5.3.1 Setting up the Action**
+- To set this Action up you just need the User_ID.
+
+<img width="580" height="421" alt="image" src="https://github.com/user-attachments/assets/21f70d38-d286-4653-b31a-b240af5f15fc" />
+
+- To Aquire the User_ID of a DMS User, you need to go in to the Configuration -> Administration -> User account and group management
+- From there you just need to click the User you want the ID From, and Copy the red marked section from the URL
+
+<img width="1047" height="781" alt="Screenshot 2026-02-19 110016" src="https://github.com/user-attachments/assets/ddb2a6bb-e8cd-48ec-ac35-dce8445d0b8a" />
 
 
-
+The output will be Display in the Rightside of the Node:
 
 
 <img width="1365" height="1142" alt="image" src="https://github.com/user-attachments/assets/6311374e-0825-42fd-bb55-cb9887a3128f" />
