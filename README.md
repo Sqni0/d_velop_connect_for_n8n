@@ -1,17 +1,32 @@
 # d.velop Actions Node - Documentation
 
 # Table of Contents
-- [Overview](##overview)
-- [Get User Info](#get-user-info)
-  - [Available Functions](#available-functions)
-- [Examples](#examples)
+
+- [Overview](#overview)
+- [1. Purpose of this Node](#1-purpose-of-this-node)
+  - [1.1 Typical Use-Cases](#11-typical-use-cases)
+- [2. Prerequisites](#2-prerequisites)
+  - [2.1 Required Access](#21-required-access)
+  - [2.2 Required Information](#22-required-information)
+- [3. Setting up the Credentials](#3-setting-up-the-credentials)
+  - [3.1 Base URL](#31-base-url)
+  - [3.2 Authentication Method](#32-authentication-method)
+  - [3.3 Allowed HTTP Request](#33-allowed-http-request)
+- [4. Use the Node in a Workflow](#4-use-the-node-in-a-workflow)
+  - [4.1 Pick an Action Mode](#41-pick-an-action-mode)
+  - [4.2 Stable Actions](#42-stable-actions)
+  - [4.3 Volatile Actions](#43-volatile-actions)
+- [5. Stable Actions in Detail](#5-stable-actions-in-detail)
+  - [5.1 Download Document](#51-download-document)
+  - [5.2 Get Document Info](#52-get-document-info)
+  - [5.3 Get User Info](#53-get-user-info)
 
 
 
-##Overview
+## Overview
 - The main Goal of this Projekt is to create a geatway to hyperautomatisation with other Apps in the d.velop Hemesphere. And this Node Bassicly does all that. 
 
-## 1. Purpouse of This Node
+## 1. Purpouse of this Node
 - This Node allows the d.velop DMS (Document Managment System) Users to implement their Document managment with the Middelware **n8n**
 - You can Automize docoment Processing and implement all d.velop API functions in your workflow
 - The Possibilities are imense, because n8n already ahs about 1300 nodes, to automize your workflow.
