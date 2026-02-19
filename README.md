@@ -235,7 +235,7 @@ This action allows you to upload files directly to your DMS using d.velop inboun
 
 - If you execute this API call you get a list of all the Volatile Actions back.
 - Tetstwise we will take a look at the *Salesforce_get-recod* Action.
-<details> 
+ 
 ```bash
 {
     "id": "salesforce_get-record",
@@ -296,12 +296,15 @@ This action allows you to upload files directly to your DMS using d.velop inboun
     ],
     "volatile": true
 ```
-</details>
-
 
 - The Payload in this instance is:
 
-  ```bash
+```bash
+{
+  "objectApiName": "Account",
+  "recordId": "001XXXXXXXXXXXXXXX",
+  "orgUrl": "https://your-org.salesforce.com"
+}
 
-  ```
+```
   
