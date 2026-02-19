@@ -154,7 +154,7 @@ This is going to showcase how the stable Actions work in detail.
 
 <img width="461" height="486" alt="image" src="https://github.com/user-attachments/assets/befacd4b-82ea-49f7-a901-d0096416a674" />
 
-- To find out what the Repository string is, you need to open the document and copy the marked section.
+- To find out what the *Repository* string and the *Document_ID* are, you need to open the document and copy the marked section.
 
 <img width="1226" height="708" alt="Download_Document" src="https://github.com/user-attachments/assets/ea17fb6d-8fae-4bc9-937d-825eb2a40349" />
 
