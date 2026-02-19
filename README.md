@@ -48,7 +48,9 @@ For ervery Action Node you want to execute you need to have your credentials set
 To Use this node in A Workflow you need to open **nodes panel** and search for *d.velop Actions*
  
 **4.1. Pick a Action Mode**
- Here you can choose beetween 4 Stable Actions or your Volatile Actions 
+- Here you can choose beetween 4 Stable Actions or your Volatile Actions.
+<img width="564" height="356" alt="image" src="https://github.com/user-attachments/assets/1ec54de7-e1f5-4294-9212-d784db8ac2dd" />
+
  
  **4.2. Stable Actions**
   Stable Actions are pre definded, and they will always be the same
