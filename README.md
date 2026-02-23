@@ -312,7 +312,7 @@ The Action does not return Any Values, it just Uploads Files, so they can be Ind
 - If you chose your action you need to fill the Payload
 
 **6.2. Payload of an Action**
-- To ascertain the payload of an action, it is necessary to utilize an *API client*, such as *Bruno*. -> <href= https://www.usebruno.com>
+- To ascertain the payload of an action, it is necessary to utilize an *API client*, such as *Bruno*. -> https://www.usebruno.com
 - To retrieve all volatile actions, run this API call with the *base URL* and the *API key (token)*.
 <img width="556" height="240" alt="image" src="https://github.com/user-attachments/assets/cb0dbcce-4425-4fcc-906d-b3a643f2d430" />
 
