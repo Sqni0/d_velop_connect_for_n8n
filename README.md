@@ -165,6 +165,7 @@ This is going to showcase how the stable Actions work in detail.
 **5.1.2 Workflow**
 
 <img width="2346" height="766" alt="image" src="https://github.com/user-attachments/assets/c2d338be-17e8-4770-8382-1ba075ea4538" />
+
 ***Webhook***
 A webhook listens for responses from the Discord bot that has been set up. If the user requests a document, he can fulfill three parameters, two of which are mandatory.
 - Document ID:
@@ -229,7 +230,9 @@ This small code block is responsible for parsing the string into individual obje
  
 ***Send a Message - Email = True***
 - The truePath system will send an email when an email exists, containing the data from the d.velop action.
+
 <img width="754" height="1102" alt="image" src="https://github.com/user-attachments/assets/c4106c48-57ff-430e-b817-4f7eca3077fb" />
+
 - If the email is successful, the user will receive a Discord verification message confirming the request.
 
 ***Send a Message - Email = False***
