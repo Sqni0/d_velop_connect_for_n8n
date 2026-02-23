@@ -1,0 +1,12 @@
+# Keep transient TypeScript metadata out of published tarballs
+dist/tsconfig.tsbuildinfo
+
+# Keep development-only sources and configs out of npm package
+credentials/
+nodes/
+icons/
+scripts/
+node_modules/
+eslint.config.mjs
+tsconfig.json
+.prettierrc.js

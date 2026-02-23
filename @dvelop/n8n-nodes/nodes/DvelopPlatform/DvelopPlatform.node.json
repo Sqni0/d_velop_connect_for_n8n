@@ -1,5 +1,5 @@
 {
-  "node": "@dvelop/n8n-nodes-example",
+  "node": "@dvelop/n8n-nodes",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
   "categories": ["Development", "Integration"],
