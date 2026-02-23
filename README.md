@@ -222,7 +222,7 @@ This action shows all the Information the Document has attached to it, for examp
 
 **5.3. Get User Info**
 
-This Actions shows all known Information, that is Attatched to the User. Theese are all the Functions that this Actions return:
+This action displays all the information associated with the user. Please find below a list of all the functions that this action returns:
 
 - getUserId – Returns the unique internal user ID
 - getExternalId – Returns the external user ID (if available)
@@ -247,13 +247,13 @@ This Actions shows all known Information, that is Attatched to the User. Theese 
 
 <img width="580" height="421" alt="image" src="https://github.com/user-attachments/assets/21f70d38-d286-4653-b31a-b240af5f15fc" />
 
-- To Aquire the User_ID of a DMS User, you need to go in to the Configuration -> Administration -> User account and group management
+- To Acquire the User_ID of a DMS User, you need to go in to the Configuration -> Administration -> User account and group management
 - From there you just need to click the User you want the ID From, and Copy the red marked section from the URL
 
 <img width="1047" height="781" alt="Screenshot 2026-02-19 110016" src="https://github.com/user-attachments/assets/ddb2a6bb-e8cd-48ec-ac35-dce8445d0b8a" />
 
 
-The output will be Display in the Rightside of the Node:
+The output will be Displayed on the Output Tab:
 
 
 <img width="1365" height="1142" alt="image" src="https://github.com/user-attachments/assets/6311374e-0825-42fd-bb55-cb9887a3128f" />
@@ -263,7 +263,7 @@ The output will be Display in the Rightside of the Node:
 **5.4. Import Document**
 
 This Action Allows you to Upload files directly to your DMS, using d.velop Inbound.
-The Action donstn returns Any Values, it just Uploads Files, so they can be Indexed.
+The Action does not return Any Values, it just Uploads Files, so they can be Indexed.
 
 **5.4.1 Setting up the Wokflow**
 - To work with this Action, you need a Minimal Workflow:
@@ -274,7 +274,7 @@ The Action donstn returns Any Values, it just Uploads Files, so they can be Inde
 - As an small example the *"Read/Write Files from Disk"* Node is Used to get a file in to the Workflow. 
 
 **5.4.2 Setting up the Node**
-- This node in Paticural has an Input from The node before
+- This node in Paticular has an Input from The node before
 
 <img width="1162" height="753" alt="image" src="https://github.com/user-attachments/assets/3adb6883-d02f-4c18-9089-064a53aaa0ef" />
 
@@ -298,7 +298,7 @@ The Action donstn returns Any Values, it just Uploads Files, so they can be Inde
 - In this setting you can Copy the red Marked *Import Profile*
 
 **5.4.3 DMS Inbound**
-- STILL UNDER CONSTRUCTION;
+- STILL UNDER CONSTRUCTION
 - API IS BITCHING
 
 ## 6. Volatile Action in Detail
@@ -312,7 +312,7 @@ The Action donstn returns Any Values, it just Uploads Files, so they can be Inde
 - If you chose your action you need to fill the Payload
 
 **6.2. Payload of an Action**
-- To ascertain the payload of an action, it is necessary to utilize an *API client*, such as *Bruno*.
+- To ascertain the payload of an action, it is necessary to utilize an *API client*, such as *Bruno*. -> <href= https://www.usebruno.com>
 - To retrieve all volatile actions, run this API call with the *base URL* and the *API key (token)*.
 <img width="556" height="240" alt="image" src="https://github.com/user-attachments/assets/cb0dbcce-4425-4fcc-906d-b3a643f2d430" />
 
