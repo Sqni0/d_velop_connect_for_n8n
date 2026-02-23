@@ -409,6 +409,8 @@ export class DvelopActions implements n8nWorkflow.INodeType {
 			
 			if (operation === 'integrationplatform_integrationplatform_GET_DOCUMENT') continue;
 
+			this.logger.info(`[${operation}] payloadKeys=${Object.keys(payload).join(',')}`);
+
 
 			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'dvelopApi', {
 				method: 'POST',
