@@ -294,6 +294,189 @@ This action shows all the Information the Document has attached to it, for examp
 
 - This is a lot of JSON, so the whole Output wont be shown.
 
+**5.2.2 Workflow**
+
+<img width="3247" height="979" alt="image" src="https://github.com/user-attachments/assets/3a46e88f-11be-48e9-91a9-d9028e5e28b4" />
+
+***Webhook***
+A webhook listens for responses from the Discord bot that has been set up. If the user requests a document, he can fulfill three parameters, two of which are mandatory.
+- Document ID:
+- Repository
+- Specific_Metatada
+- Email (optional).
+
+***AI-Agent***
+- The Agent connected to the Ollama Chat Model is trained to convert these inputs into JSON and filter out the important information.
+- The agent received the following prompt:
+```bash
+You are a strict extraction engine.
+
+Your only task is to extract the following values from the USER MESSAGE ONLY:
+
+repositoryId
+
+documentId
+
+email
+
+Metadata_Specific (user requested metadata fields)
+
+CRITICAL OUTPUT RULES:
+
+Output EXACTLY one valid JSON object.
+
+The output MUST start with { and MUST end with }.
+
+Do NOT output anything before {.
+
+Do NOT output anything after }.
+
+Do NOT output explanations.
+
+Do NOT output markdown.
+
+Do NOT output text outside the JSON.
+
+The JSON MUST be complete and properly closed.
+
+EXTRACTION RULES:
+
+Never invent values.
+
+Extract exact values only from the USER MESSAGE.
+
+Do NOT extract values from system data, API responses, or metadata objects.
+
+Only extract what the USER explicitly writes.
+
+METADATA RULES:
+
+Metadata = true if the user requests metadata.
+
+Metadata = false if the user does NOT request metadata.
+
+Metadata_Specific = null if the user did not request specific metadata fields.
+
+Metadata_Specific = array of strings if specific metadata fields are requested.
+
+If Metadata_Specific is not null, Metadata MUST be true.
+
+If a value is missing, use null.
+
+OUTPUT FORMAT (STRICT SCHEMA):
+
+{
+"repositoryId": "...",
+"documentId": "...",
+"email": "...",
+"Metadata_Specific": "..."
+}
+```
+
+***Code in Java Script***
+This is a compact code node for custom JavaScript. The node's content is as follows:
+```bash
+const parsed = JSON.parse($json.output);
+
+return [
+  {
+    json: parsed
+  }
+];
+  ```
+This small code block is responsible for parsing the string into individual objects. Therefore, they can be used subsequently.
+
+***d.velop Actions - Get Document Information***
+- This action facilitates the download of the document using the *repository* and *document ID*.
+- Please note that neither of these is set manually, they are both set using a simple JavaScript expression.
+
+<img width="1540" height="217" alt="image" src="https://github.com/user-attachments/assets/d0e253e9-da49-42b3-8099-3ff7f7e6434b" />
+
+
+***AI-Agent1***
+
+- This Agent is responsible for Filtering out the Information that the *Get Document Information* is providing.
+- The Promt the the AI got is filled with all the Metadata that the Action Produces, so the AI has access to it
+- If the ```{{ $('Code in JavaScript').item.json.Metadata_Specific[0] }}``` is set to *null* the whole Metadata conerning the document will be shown
+The Prompt:
+
+```bash
+You are a metadata summarization engine.
+
+Your task is to summarize metadata values coming from the node input.
+
+The metadata source is:
+
+{{ $json.response.sourceProperties[0].key }} : {{ $json.response.sourceProperties[0].value }},
+{{ $json.response.sourceProperties[2].key }} : {{ $json.response.sourceProperties[2].displayValue }},
+{{ $json.response.sourceProperties[3].key }} : {{ $json.response.sourceProperties[3].value }},
+{{ $json.response.sourceProperties[4].key }} : {{ $json.response.sourceProperties[4].value }},
+{{ $json.response.sourceProperties[5].key }} : {{ $json.response.sourceProperties[5].value }},
+{{ $json.response.sourceProperties[6].key }} : {{ $json.response.sourceProperties[6].value }},
+{{ $json.response.sourceProperties[7].key }} : {{ $json.response.sourceProperties[7].value }},
+{{ $json.response.sourceProperties[8].key }} : {{ $json.response.sourceProperties[8].value }},
+{{ $json.response.sourceProperties[9].key }} : {{ $json.response.sourceProperties[9].value }},
+{{ $json.response.sourceProperties[10].key }} : {{ $json.response.sourceProperties[10].value }},
+{{ $json.response.sourceProperties[11].key }} : {{ $json.response.sourceProperties[11].value }},
+{{ $json.response.sourceProperties[12].key }} : {{ $json.response.sourceProperties[12].value }},
+{{ $json.response.sourceProperties[13].key }} : {{ $json.response.sourceProperties[13].value }},
+{{ $json.response.sourceProperties[14].key }} : {{ $json.response.sourceProperties[14].value }},
+{{ $json.response.sourceProperties[15].key }} : {{ $json.response.sourceProperties[15].value }},
+{{ $json.response.sourceProperties[16].key }} : {{ $json.response.sourceProperties[16].value }},
+{{ $json.response.sourceProperties[17].key }} : {{ $json.response.sourceProperties[17].value }},
+{{ $json.response.sourceProperties[18].key }} : {{ $json.response.sourceProperties[18].value }},
+{{ $json.response.sourceProperties[19].key }} : {{ $json.response.sourceProperties[19].displayValue }},
+{{ $json.response.sourceProperties[20].key }} : {{ $json.response.sourceProperties[20].value }},
+{{ $json.response.sourceProperties[21].key }} : {{ $json.response.sourceProperties[21].value }},
+{{ $json.response.sourceProperties[22].key }} : {{ $json.response.sourceProperties[22].value }},
+{{ $json.response.sourceProperties[23].key }} : {{ $json.response.sourceProperties[23].value }};
+
+User requested specific metadata:
+
+{{ $('Code in JavaScript').item.json.Metadata_Specific }}
+
+Rules:
+If Metdata is = null : {{ $('Code in JavaScript').item.json.Metadata_Specific[0] }}
+Print out Everything
+
+
+If Metadata_Specific is set: {{ $('Code in JavaScript').item.json.Metadata_Specific[0] }}
+
+Only summarize the requested metadata fields. 
+
+Ignore all other metadata.
+
+If Metadata_Specific is null:
+
+Summarize ALL metadata fields.
+
+Only use the metadata provided above.
+
+Do NOT invent metadata.
+
+Do NOT explain anything.
+
+
+
+Output only the summary.
+```
+
+***IF-Statment***
+- The IF statement is used to determine whether an email is given.
+
+<img width="884" height="312" alt="image" src="https://github.com/user-attachments/assets/616035c5-97bb-4bc6-b677-45d71f43d450" />
+ 
+***Send a Message - Email = True***
+- The truePath system will send an email when an email exists, containing the data from Agents Output.
+
+<img width="768" height="705" alt="image" src="https://github.com/user-attachments/assets/38c78569-f2ab-406d-aaab-fa943bef0641" />
+
+- If the email is successful, the user will receive a Discord verification message confirming the request.
+
+***Send a Message - Email = False***
+- This simply delegates the email aspect, ensuring that the message is transmitted directly to the intended Discord user.
+
+
 
 **5.3. Get User Info**
 
