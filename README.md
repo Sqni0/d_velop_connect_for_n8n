@@ -167,12 +167,14 @@ This is going to showcase how the stable Actions work in detail.
 <img width="2346" height="766" alt="image" src="https://github.com/user-attachments/assets/c2d338be-17e8-4770-8382-1ba075ea4538" />
 
 ***Webhook***
+
 A webhook listens for responses from the Discord bot that has been set up. If the user requests a document, he can fulfill three parameters, two of which are mandatory.
 - Document ID:
 - Repository
 - Email (optional).
 
 ***AI-Agent***
+
 - The Agent connected to the Ollama Chat Model is trained to convert these inputs into a string and filter out the important information.
 - The agent received the following prompt:
 ```bash
@@ -224,11 +226,13 @@ This small code block is responsible for parsing the string into individual obje
 <img width="507" height="239" alt="image" src="https://github.com/user-attachments/assets/494a7f5e-4ef2-43d5-ab9f-9527a5c95cea" />
 
 ***IF-Statment***
+
 - The IF statement is used to determine whether an email is given.
 
 <img width="884" height="312" alt="image" src="https://github.com/user-attachments/assets/616035c5-97bb-4bc6-b677-45d71f43d450" />
  
 ***Send a Message - Email = True***
+
 - The truePath system will send an email when an email exists, containing the data from the d.velop action.
 
 <img width="754" height="1102" alt="image" src="https://github.com/user-attachments/assets/c4106c48-57ff-430e-b817-4f7eca3077fb" />
@@ -236,10 +240,12 @@ This small code block is responsible for parsing the string into individual obje
 - If the email is successful, the user will receive a Discord verification message confirming the request.
 
 ***Send a Message - Email = False***
+
 - This simply delegates the email aspect, ensuring that the message is transmitted directly to the intended Discord user.
 ---
 
 **5.2. Get Document Info**
+
 This action shows all the Information the Document has attached to it, for example:
 
 - Document ID
@@ -299,6 +305,7 @@ This action shows all the Information the Document has attached to it, for examp
 <img width="3247" height="979" alt="image" src="https://github.com/user-attachments/assets/3a46e88f-11be-48e9-91a9-d9028e5e28b4" />
 
 ***Webhook***
+
 A webhook listens for responses from the Discord bot that has been set up. If the user requests a document, he can fulfill three parameters, two of which are mandatory.
 - Document ID:
 - Repository
@@ -374,6 +381,7 @@ OUTPUT FORMAT (STRICT SCHEMA):
 ```
 
 ***Code in Java Script***
+
 This is a compact code node for custom JavaScript. The node's content is as follows:
 ```bash
 const parsed = JSON.parse($json.output);
@@ -462,19 +470,28 @@ Output only the summary.
 ```
 
 ***IF-Statment***
+
 - The IF statement is used to determine whether an email is given.
 
 <img width="884" height="312" alt="image" src="https://github.com/user-attachments/assets/616035c5-97bb-4bc6-b677-45d71f43d450" />
  
 ***Send a Message - Email = True***
+
 - The truePath system will send an email when an email exists, containing the data from Agents Output.
 
 <img width="768" height="705" alt="image" src="https://github.com/user-attachments/assets/38c78569-f2ab-406d-aaab-fa943bef0641" />
 
 - If the email is successful, the user will receive a Discord verification message confirming the request.
 
+<img width="1472" height="199" alt="image" src="https://github.com/user-attachments/assets/e884ae8e-6656-447b-b8d5-fd912bac9f9b" />
+
+
+
 ***Send a Message - Email = False***
+
 - This simply delegates the email aspect, ensuring that the message is transmitted directly to the intended Discord user.
+
+
 
 
 
@@ -524,6 +541,7 @@ This Action Allows you to Upload files directly to your DMS, using d.velop Inbou
 The Action does not return Any Values, it just Uploads Files, so they can be Indexed.
 
 **5.4.1 Setting up the Wokflow**
+
 - To work with this Action, you need a Minimal Workflow:
 
 <img width="1423" height="536" alt="image" src="https://github.com/user-attachments/assets/1d0ccf5e-7a87-4e46-aa5f-de8c63943809" />
@@ -542,13 +560,16 @@ The Action does not return Any Values, it just Uploads Files, so they can be Ind
   {{ $json.fileName }}
   ```
 **File Source**
+
 - When configuring the node, set the File Source to From N8n Binary. This means the file will be taken from the binary data of a previous node in your workflow.
 - Alternatively, you can use From Base64/String as the File Source. This option allows you to upload a file using its Base64-encoded content instead of binary data.
 
 **Input Binary Property**
+
 - The Input Binary Property defines the name of the binary field that contains the file. In most cases, this property is called: binary.
 
 **Import Profile**
+
 - In order to get the Import Profile you need to navigate to *configuration* -> *Document Managment* -> *Import* -> *Importoption* -> *Importprofile*
 
 <img width="1076" height="599" alt="image" src="https://github.com/user-attachments/assets/8bac4b1c-b63d-418c-b9a4-66be1800e3e8" />
