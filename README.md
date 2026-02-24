@@ -39,7 +39,7 @@
 
 ---
 
-## Overview
+## Overview 🚀
 
 This project provides a gateway for hyperautomation by enabling seamless integration between the d.velop platform and external applications using n8n. The d.velop Actions Node allows users to execute d.velop Actions directly within n8n workflows, making it possible to automate document management, user operations, and custom process integrations. This enables powerful, flexible, and scalable automation across the entire d.velop ecosystem.
 
