@@ -533,6 +533,113 @@ The output will be Displayed on the Output Tab:
 
 <img width="1365" height="1142" alt="image" src="https://github.com/user-attachments/assets/6311374e-0825-42fd-bb55-cb9887a3128f" />
 
+**5.3.2 Workflow**
+
+- This Workflow is a bit bigger and also Includes 2 Other Actions and a d.velop custom API Call. The *Get User Info* Action cant be utilized to demonstrate a good Usecase alone.
+Senariao:
+
+If a User of the DMS Wants to download a specific Document, the Owner of that Document gets a E-Mail. To Approve or denie the Download request.
+
+  
+<img width="2956" height="557" alt="image" src="https://github.com/user-attachments/assets/befc8b7b-da82-4a9d-935e-d3e1d165fd4a" />
+
+***Webhook***
+
+A webhook listens for responses from the Discord bot that has been set up. If the user requests a document, he can fulfill 2 parameters, both of them are mandatory:
+- Document ID
+- Repository
+
+***AI-Agent***
+
+- The Agent connected to the Ollama Chat Model is trained to convert these inputs into a string and filter out the important information.
+- The agent received the following prompt:
+```bash
+You are a strict extraction engine.
+
+Your only task is to extract two or three values from the user message:
+
+- repositoryId
+- documentId
+Rules:
+
+- Output ONLY valid JSON.
+- No explanations.
+- No markdown.
+- No extra text.
+- Always output both keys.
+- If a value is missing, use null.
+- Never invent values.
+- Extract exact values only from the input.
+
+Output format:
+
+{
+  "repositoryId": "...",
+  "documentId": "...",
+}
+```
+
+***Code in Java Script***
+This is a compact code node for custom JavaScript. The node's content is as follows:
+```bash
+const parsed = JSON.parse($json.output);
+
+return [
+  {
+    json: parsed
+  }
+];
+  ```
+This small code block is responsible for parsing the string into individual objects. Therefore, they can be used subsequently.
+
+
+***d.velop Actions - Get Document Info***
+- Here the repository and the Document ID's are enterd with a Statment
+- This node is Important because here you can get the DisplayValue from the Document Owner. This will be Utalised in the netxt node 
+
+<img width="764" height="512" alt="image" src="https://github.com/user-attachments/assets/71184366-cf57-419a-baf5-fbf6512bedfd" />
+
+***HTTP-Request***
+- THis node is Basicly just a Custom api Call to the identityprivider API
+- The Variable is the Name of the Document Owner
+  
+  ```bash
+  https://connect-for-n8n-test.d-velop.cloud/identityprovider/scim/users?filter=DisplayName eq "{{ $json.response.sourceProperties[2].displayValue }}"
+  ```
+
+<img width="582" height="798" alt="image" src="https://github.com/user-attachments/assets/89d28697-57cb-4672-ba8d-975a056bb07a" />
+
+- If you run this call, you can get the ID, of the Document Owner
+
+***d.velop Actions - Get User Info***
+
+- In this Node the User_ID is being user to get the E-Mail from the Document Owner
+
+<img width="506" height="437" alt="image" src="https://github.com/user-attachments/assets/0aa9cc64-2108-4bc3-a314-88c36e42a3e2" />
+
+***G-Mail Send a Message***
+
+- With the E-Mail we got from the *Get User Info* Action, we now can send a Approve request to the Document Owner
+- Tis E-Mail also Displays who is Requesting this Document
+
+<img width="495" height="698" alt="image" src="https://github.com/user-attachments/assets/7d2a6769-4a80-4b18-8544-f64527e4dc48" />
+
+
+***IF True - Approved***
+- If the Document Owner Approved the download the Workflow procceds to Download the Document using the *Download Document* Action.
+
+<img width="500" height="560" alt="image" src="https://github.com/user-attachments/assets/33d896c6-4f6e-47eb-86f6-133d3e5c3d05" />
+
+- And the Discord Bot replies to the User who sent the request with the File attatched to the Message.
+
+<img width="492" height="1034" alt="image" src="https://github.com/user-attachments/assets/5f09b25d-80b0-418f-9fd7-6f7b6e761129" />
+
+***IF False - Denied***
+- If the Download Request was denied by the Owner, the bot sends a message that you request was denied.
+
+<img width="496" height="691" alt="image" src="https://github.com/user-attachments/assets/d8e9a75d-aae9-41fd-89a5-5297dc30d144" />
+
+
 ---
 
 **5.4. Import Document**
